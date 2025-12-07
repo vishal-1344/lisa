@@ -1,7 +1,3 @@
-# lisa
-Latent Invariant Spaces Adaptation
-# Latent Invariant Space Adaptation (LISA)
-
 **Latent Invariant Space Adaptation (LISA)** is a dual-timescale dynamical framework for robust adaptive control in high-dimensional learned systems.
 
 LISA treats an intelligent system not as a static function approximator, but as a **singularly perturbed dynamical system** with:
