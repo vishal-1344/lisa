@@ -9,7 +9,7 @@
 
 The prevailing paradigm in autonomous system design bifurcates into static deep learning (prioritizing prediction error minimization) and classical adaptive control (prioritizing stability). **Latent Invariant Space Adaptation (LISA)** bridges this dichotomy by treating the latent structure of an agent not as a fixed map, but as a slowly varying state variable within a singularly perturbed dynamical system.
 
-The central thesis of LISA is that robust performance in non-stationary environments is a function of maintaining a low-dimensional attracting manifold—the **Latent Invariant Space**—embedded within the high-dimensional state space. Using **Geometric Singular Perturbation Theory (GSPT)** and **Lyapunov Stability Analysis**, LISA decouples fast state dynamics (inference) from slow structural dynamics (manifold adaptation).
+The central thesis of LISA is that robust performance in non-stationary environments is a function of maintaining a low-dimensional attracting manifold, the **Latent Invariant Space**, embedded within the high-dimensional state space. Using **Geometric Singular Perturbation Theory (GSPT)** and **Lyapunov Stability Analysis**, LISA decouples fast state dynamics (inference) from slow structural dynamics (manifold adaptation).
 
 ## 🧮 Mathematical Formalism
 
