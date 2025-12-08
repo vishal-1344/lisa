@@ -1,6 +1,3 @@
-Here is the raw source code for the `README.md` file. You can copy the code block below and paste it directly into your text editor.
-
-````markdown
 # LISA: Latent Invariant Space Adaptation
 ### A Dual-Timescale Framework for Robust Adaptive Control
 
@@ -232,3 +229,4 @@ Recommended tests include:
 If you use LISA or build on this framework, please cite the technical report:
 
 > **Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control**, December 2025.
+
