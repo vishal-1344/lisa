@@ -1,4 +1,97 @@
+from __future__ import annotations
+
 import numpy as np
+from scipy.integrate import odeint
+import matplotlib.pyplot as plt
+
+from lisa.core import LISAConfig, LISADynamicalSystem
+from lisa.manifolds import linear_manifold
+
+
+Array = np.ndarray
+
+
+def input_signal(t: float) -> Array:
+    return np.array([np.sin(t), np.cos(t)], dtype=float)
+
+
+def true_manifold(u: Array, t: float) -> Array:
+    omega = 0.1
+    angle = omega * t
+    c, s = np.cos(angle), np.sin(angle)
+    rot = np.array([[c, -s], [s, c]], dtype=float)
+    return rot @ u
+
+
+def linear_regressor(z: Array, u: Array, theta: Array) -> Array:  # noqa: ARG001
+    return u
+
+
+def run_experiment() -> None:
+    n_states = 2
+    dim_u = 2
+    n_params = n_states * dim_u
+
+    cfg = LISAConfig(
+        n_states=n_states,
+        n_params=n_params,
+        epsilon=0.05,
+        gamma=5.0,
+        k_fast=10.0,
+    )
+
+    manifold = linear_manifold(dim_state=n_states, dim_input=dim_u)
+    lisa = LISADynamicalSystem(
+        cfg, manifold_map=manifold, regressor=linear_regressor
+    )
+
+    z0 = np.zeros(n_states, dtype=float)
+    theta0 = np.eye(n_states, dtype=float).reshape(-1)
+    state0 = np.concatenate([z0, theta0])
+
+    t_span = np.linspace(0.0, 50.0, 1000)
+
+    def ode_wrapper(state: Array, t: float) -> Array:
+        u = input_signal(t)
+        return lisa.compute_derivatives(t, state, u)
+
+    print("Integrating LISA dual-timescale dynamics...")
+    traj = odeint(ode_wrapper, state0, t_span)
+
+    z_hist = traj[:, :n_states]
+    theta_hist = traj[:, n_states:]
+
+    errors = []
+    for idx, t in enumerate(t_span):
+        u = input_signal(t)
+        z_est = z_hist[idx]
+        z_star = true_manifold(u, t)
+        errors.append(np.linalg.norm(z_est - z_star))
+
+    errors = np.asarray(errors)
+
+    print(f"Final tracking error ||z - z*|| = {errors[-1]:.4f}")
+
+    fig, (ax_state, ax_err) = plt.subplots(2, 1, figsize=(6, 6))
+
+    ax_state.set_title("Fast state trajectory z(t)")
+    ax_state.plot(t_span, z_hist[:, 0], label="z1")
+    ax_state.plot(t_span, z_hist[:, 1], label="z2")
+    ax_state.set_xlabel("t")
+    ax_state.set_ylabel("z components")
+    ax_state.legend()
+
+    ax_err.set_title("Tracking error ||z(t) - z*(t)||")
+    ax_err.plot(t_span, errors)
+    ax_err.set_xlabel("t")
+    ax_err.set_ylabel("error norm")
+
+    fig.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+    run_experiment()import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 import sys
