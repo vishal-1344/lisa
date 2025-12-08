@@ -3,79 +3,81 @@ from __future__ import annotations
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
+import sys
+import os
 
-from lisa.core import LISAConfig, LISADynamicalSystem
-from lisa.manifolds import linear_manifold
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from lisa import LISADynamicalSystem, LISAConfig, linear_manifold, LISAState
 
 
-Array = np.ndarray
-
-
-def input_signal(t: float) -> Array:
+def get_input(t: float) -> np.ndarray:
     return np.array([np.sin(t), np.cos(t)], dtype=float)
 
 
-def true_manifold(u: Array, t: float) -> Array:
-    omega = 0.1
-    angle = omega * t
-    c, s = np.cos(angle), np.sin(angle)
-    rot = np.array([[c, -s], [s, c]], dtype=float)
-    return rot @ u
-
-
-def linear_regressor(z: Array, u: Array, theta: Array) -> Array:  # noqa: ARG001
-    return u
+def get_ground_truth(u: np.ndarray, t: float) -> np.ndarray:
+    angle = 0.1 * t
+    R = np.array(
+        [[np.cos(angle), -np.sin(angle)],
+         [np.sin(angle),  np.cos(angle)]],
+        dtype=float,
+    )
+    return R @ u
 
 
 def run_experiment() -> None:
-    n_states = 2
-    dim_u = 2
-    n_params = n_states * dim_u
+    cfg = LISAConfig(n_states=2, n_params=4, epsilon=0.1, gamma=5.0)
+    lisa = LISADynamicalSystem(cfg, linear_manifold, k_fast=10.0)
 
-    cfg = LISAConfig(
-        n_states=n_states,
-        n_params=n_params,
-        epsilon=0.05,
-        gamma=5.0,
-        k_fast=10.0,
-    )
-
-    manifold = linear_manifold(dim_state=n_states, dim_input=dim_u)
-    lisa = LISADynamicalSystem(
-        cfg, manifold_map=manifold, regressor=linear_regressor
-    )
-
-    z0 = np.zeros(n_states, dtype=float)
-    theta0 = np.eye(n_states, dtype=float).reshape(-1)
-    state0 = np.concatenate([z0, theta0])
+    z0 = np.zeros(2, dtype=float)
+    theta0 = np.eye(2, dtype=float).flatten()
+    state0 = LISAState(z=z0, theta=theta0).as_vector()
 
     t_span = np.linspace(0.0, 50.0, 1000)
 
-    def ode_wrapper(state: Array, t: float) -> Array:
-        u = input_signal(t)
-        return lisa.compute_derivatives(t, state, u)
+    def wrapper(y: np.ndarray, t: float) -> np.ndarray:
+        u = get_input(t)
+        return lisa.rhs(t, y, u)
 
-    print("Integrating LISA dual-timescale dynamics...")
-    traj = odeint(ode_wrapper, state0, t_span)
+    print("Integrating dual-timescale LISA dynamics...")
+    traj = odeint(wrapper, state0, t_span)
 
-    z_hist = traj[:, :n_states]
-    theta_hist = traj[:, n_states:]
+    z_hist = traj[:, :2]
+    theta_hist = traj[:, 2:]
 
-    errors = []
-    for idx, t in enumerate(t_span):
-        u = input_signal(t)
-        z_est = z_hist[idx]
-        z_star = true_manifold(u, t)
-        errors.append(np.linalg.norm(z_est - z_star))
+    tracking_errors = []
+    manifold_errors = []
 
-    errors = np.asarray(errors)
+    for i, t in enumerate(t_span):
+        u = get_input(t)
+        z_est = z_hist[i]
+        theta_i = theta_hist[i]
 
-    print(f"Final tracking error ||z - z*|| = {errors[-1]:.4f}")
+        z_true = get_ground_truth(u, t)
+        tracking_errors.append(np.linalg.norm(z_est - z_true))
 
-    fig, (ax_state, ax_err) = plt.subplots(2, 1, figsize=(6, 6))
+        eta = lisa.manifold_error(z_est, u, theta_i)
+        manifold_errors.append(np.linalg.norm(eta))
 
-    ax_state.set_title("Fast state trajectory z(t)")
-    ax_state.plot(t_span, z_hist[:, 0], label="z1")
+    tracking_errors = np.asarray(tracking_errors)
+    manifold_errors = np.asarray(manifold_errors)
+
+    print(f"Final tracking error ‖z - z_true‖: {tracking_errors[-1]:.4f}")
+    print(f"Final manifold error ‖η‖       : {manifold_errors[-1]:.4f}")
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(t_span, tracking_errors, label="‖z - z_true‖ (tracking error)")
+    plt.plot(t_span, manifold_errors, label="‖η‖ (manifold deviation)")
+    plt.title("LISA Drift Stabilization in a Rotating Manifold")
+    plt.xlabel("time")
+    plt.ylabel("error")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+    run_experiment()
     ax_state.plot(t_span, z_hist[:, 1], label="z2")
     ax_state.set_xlabel("t")
     ax_state.set_ylabel("z components")

@@ -1,25 +1,29 @@
 from __future__ import annotations
 
+from typing import Protocol
 import numpy as np
-from typing import Callable
-
-Array = np.ndarray
 
 
-def linear_manifold(dim_state: int, dim_input: int) -> Callable[[Array, Array], Array]:
-    """Construct Ψ(u, Θ) = W u with Θ = vec(W)."""
+class ManifoldMap(Protocol):
+    """Protocol for a manifold mapping Ψ(u, Θ) -> z_hat."""
 
-    n = dim_state
-    m = dim_input
-    expected_params = n * m
+    def __call__(self, u: np.ndarray, theta: np.ndarray) -> np.ndarray: ...
 
-    def manifold(u: Array, theta: Array) -> Array:
-        if theta.shape[0] != expected_params:
-            raise ValueError(
-                f"Expected θ of length {expected_params}, got {theta.shape[0]}"
-            )
 
-        w = theta.reshape(n, m)
-        return w @ u
+def linear_manifold(u: np.ndarray, theta: np.ndarray) -> np.ndarray:
+    """
+    Linear manifold z = Θ u.
 
-    return manifold
+    Θ is represented as a flattened (n_states * n_inputs) vector.
+    """
+
+    if u.ndim != 1:
+        raise ValueError("u must be a 1D vector")
+
+    m = u.shape[0]
+    if theta.size % m != 0:
+        raise ValueError(f"theta size {theta.size} not compatible with input {m}")
+
+    n_states = theta.size // m
+    theta_mat = theta.reshape(n_states, m)
+    return theta_mat @ u
