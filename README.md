@@ -34,4 +34,3 @@ We model an agent as a singularly perturbed system:
 dot_z      = F(z, u; Theta)
 dot_Theta  = eps * G(z, u, Theta),   with 0 < eps << 1
 
-
