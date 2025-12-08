@@ -1,187 +1,150 @@
-LISA: Latent Invariant Space Adaptation
+Here is the raw source code for the `README.md` file. You can copy the code block below and paste it directly into your text editor.
 
-A Dual-Timescale Framework for Robust Adaptive Control
+````markdown
+# LISA: Latent Invariant Space Adaptation
+### A Dual-Timescale Framework for Robust Adaptive Control
 
-“Robust system performance is not merely a function of error minimization,
-but rather the result of maintaining a low-dimensional attracting manifold.”
-— LISA Technical Report
+> “Robust system performance is not merely a function of error minimization, but rather the result of maintaining a low-dimensional attracting manifold.” 
+> — **LISA Technical Report**
 
-0. Overview
+## Overview
 
-LISA is a control-theoretic architecture for high-dimensional, non-stationary environments.
-Instead of treating a model as a static function trained once and frozen, LISA models the agent as a
-singularly perturbed dynamical system with:
+**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Instead of treating a model as a static function trained once and frozen, LISA models the agent as a **singularly perturbed dynamical system** with:
 
-fast behavioral dynamics (what the system is doing right now), and
+1.  **Fast behavioral dynamics** (what the system is doing right now).
+2.  **Slow structural dynamics** (how the underlying representation and geometry are adapting).
 
-slow structural dynamics (how the underlying representation and geometry are adapting).
+### The Core Idea
+* **Fast latent states** $z(t)$ evolve continuously under current structure $\Theta(t)$ and input $u(t)$.
+* **Slow structural parameters** $\Theta(t)$ evolve under a small perturbation parameter $\epsilon$, driven by violation of a **Lyapunov-style energy function** $V(z, \Theta)$.
 
-The core idea:
+The system is designed so that structural updates reduce energy and reconstruct an invariant manifold, yielding robustness even under distribution drift. LISA is intended as a general template for adaptive controllers, structured representation learning, and long-horizon agents operating in changing environments.
 
-Fast latent states z(t) evolve continuously under current structure Theta(t) and input u(t).
+---
 
-Slow structural parameters Theta(t) evolve under a small perturbation parameter epsilon,
-driven by violation of a Lyapunov-style energy function V(z, Theta).
+## Mathematical Formulation
 
-The system is designed so that structural updates reduce energy and reconstruct an invariant manifold,
-yielding robustness even under distribution drift.
+The system evolves on two explicitly separated time scales $(t, \tau)$.
 
-LISA is intended as a general template for adaptive controllers, structured representation learning,
-and long-horizon agents operating in changing environments.
+### 1. Fast State Dynamics (Behavioral Layer)
+Fast latent state $z$ evolves according to:
 
-1. Mathematical Formulation
+$$
+\frac{dz}{dt} = f(z, u, \Theta)
+$$
 
-The system evolves on two explicitly separated time scales (t, tau).
+Where:
+* $z$: Fast latent state (behavior, beliefs, or internal representation)
+* $u$: Control input or external signal
+* $\Theta$: Structural parameters (geometry, invariants, slow weights)
+* $f$: Vector field defining the fast dynamics
 
-1.1 Fast State Dynamics (behavioral layer)
+### 2. Slow Structural Dynamics (Structural Layer)
+Structural parameters $\Theta$ evolve on a slower time scale:
 
-Fast latent state z evolves according to:
+$$
+\frac{d\Theta}{dt} = \epsilon \cdot g(z, u, \Theta)
+$$
 
-dz/dt = f(z, u, Theta)
+With:
+* $\epsilon > 0$: Small (time-scale separation parameter)
+* $g$: Structural update field (plasticity / adaptation rule)
 
+The small parameter $\epsilon$ enforces a **dual-timescale separation**: $z$ reacts quickly, $\Theta$ adapts slowly.
 
-where:
-
-z = fast latent state (behavior, beliefs, or internal representation)
-
-u = control input or external signal
-
-Theta = structural parameters (geometry, invariants, slow weights)
-
-f = vector field defining the fast dynamics
-
-1.2 Slow Structural Dynamics (structural layer)
-
-Structural parameters Theta evolve on a slower time scale:
-
-dTheta/dt = epsilon * g(z, u, Theta)
-
-
-with:
-
-epsilon > 0 small (time-scale separation parameter)
-
-g = structural update field (plasticity / adaptation rule)
-
-The small parameter epsilon enforces a dual-timescale separation:
-z reacts quickly, Theta adapts slowly.
-
-2. Invariance and Lyapunov Energy
-
+### 3. Invariance and Lyapunov Energy
 LISA assumes the existence of a Lyapunov-style energy function:
 
-V(z, Theta) >= 0
+$$
+V(z, \Theta) \ge 0
+$$
 
+This is interpreted as an invariant manifold reconstruction error or “distance to a stable regime.” A common abstract form of the structural update law is a steepest-descent type rule on this energy landscape:
 
-interpreted as an invariant manifold reconstruction error or “distance to a stable regime.”
+$$
+\frac{d\Theta}{dt} = -\Gamma \phi(z, u) \eta^T
+$$
 
-A common abstract form of the structural update law is a steepest-descent type rule on this energy landscape.
-One illustrative form is:
+Where:
+* $\Gamma$: Positive-definite gain matrix (learning / adaptation gain)
+* $\phi(z, u)$: Feature or regressor vector derived from state and input
+* $\eta$: Manifold reconstruction error (e.g., deviation from an invariant relationship)
 
-dTheta/dt = -Gamma * phi(z, u) * eta^T
+Under appropriate conditions, this update drives $\eta \to 0$ (as $t \to \infty$), meaning the system converges to a low-dimensional attracting manifold even as the environment drifts.
 
+---
 
-where:
+## Key Features
 
-Gamma = positive-definite gain matrix (learning / adaptation gain)
+* **Dual-timescale separation:** Explicit modeling of $\epsilon$ allows singular perturbation analysis and separates fast behavior from slow structural change.
+* **Lyapunov-driven adaptation:** Structural updates are derived to reduce an energy function, providing a principled alternative to heuristic learning rates. Adaptation is aligned with stability guarantees, not just gradient descent on a static loss.
+* **Continuous-time learning:** LISA is formulated as a continuous-time flow:
+    * No “epochs” or “batches” are required conceptually.
+    * Learning proceeds in parallel with operation.
+    * Suitable for streaming signals and online control.
+* **Robustness under drift:** By continuously reshaping the latent manifold (through $\Theta$) in response to reconstruction error $\eta$, LISA aims to maintain performance and stability across regime changes and distribution shift.
 
-phi(z, u) = feature or regressor vector derived from state and input
+---
 
-eta = manifold reconstruction error (e.g., deviation from an invariant relationship)
-
-Under appropriate conditions, this update drives:
-
-eta -> 0  (as t -> infinity)
-
-
-meaning the system converges to a low-dimensional attracting manifold
-even as the environment drifts.
-
-Intuitively:
-
-The fast system z responds to incoming signals.
-
-The slow system Theta reconfigures the latent geometry so that trajectories are attracted to a stable set.
-
-The energy V(z, Theta) provides a certificate of stability during adaptation.
-
-3. Key Features
-
-Dual-timescale separation
-Explicit modeling of epsilon allows singular perturbation analysis and separates fast behavior from slow structural change.
-
-Lyapunov-driven adaptation
-Structural updates are derived to reduce an energy function, providing a principled alternative to heuristic learning rates.
-Adaptation is aligned with stability guarantees, not just gradient descent on a static loss.
-
-Continuous-time learning
-LISA is formulated as a continuous-time flow:
-
-no “epochs” or “batches” are required conceptually,
-
-learning proceeds in parallel with operation,
-
-suitable for streaming signals and online control.
-
-Robustness under drift
-By continuously reshaping the latent manifold (through Theta) in response to reconstruction error eta,
-LISA aims to maintain performance and stability across regime changes and distribution shift.
-
-4. Installation
+## Installation
 
 If you are using the LISA Python implementation:
 
-git clone https://github.com/vishal-1344/lisa.git
+```bash
+git clone [https://github.com/vishal-1344/lisa.git](https://github.com/vishal-1344/lisa.git)
 cd lisa
 pip install -e .
-# or
-pip install -r requirements.txt
+````
 
+or
+
+```bash
+pip install -r requirements.txt
+```
 
 Then, in Python:
 
+```python
 import lisa
+```
 
-5. Quickstart: Toy Dual-Timescale System
+-----
+
+## Quickstart: Toy Dual-Timescale System
 
 A minimal example illustrating fast–slow dynamics and a decreasing energy function.
 
-Create examples/quickstart_toy_system.py:
+Create `examples/quickstart_toy_system.py`:
 
-"""
+```python
+""" 
 Quickstart: LISA-style dual-timescale dynamics on a toy system.
-
 This example illustrates:
-- fast state dynamics dz/dt = f(z, u, Theta)
-- slow structural dynamics dTheta/dt = epsilon * g(z, u, Theta)
-- decreasing Lyapunov-like energy V(z, Theta)
+1. fast state dynamics dz/dt = f(z, u, Theta)
+2. slow structural dynamics dTheta/dt = epsilon * g(z, u, Theta)
+3. decreasing Lyapunov-like energy V(z, Theta) 
 """
 
 import numpy as np
 
-
-def f(z, u, Theta):
-    # Simple linear fast dynamics: z_dot = A z + B u, where A depends on Theta
-    A = np.array([[Theta[0], 0.0],
-                  [0.0, Theta[1]]])
-    B = np.eye(2)
+def f(z, u, Theta): 
+    # Simple linear fast dynamics: z_dot = A z + B u, where A depends on Theta 
+    A = np.array([[Theta[0], 0.0], [0.0, Theta[1]]]) 
+    B = np.eye(2) 
     return A @ z + B @ u
 
-
-def g(z, u, Theta):
-    # Simple structural update: move Theta toward |z| statistics (illustrative)
-    target = np.abs(z)
+def g(z, u, Theta): 
+    # Simple structural update: move Theta toward |z| statistics (illustrative) 
+    target = np.abs(z) 
     return target - Theta
 
-
-def V(z, Theta):
-    # Example Lyapunov-like energy: norm of mismatch between Theta and |z|
+def V(z, Theta): 
+    # Example Lyapunov-like energy: norm of mismatch between Theta and |z| 
     return 0.5 * np.linalg.norm(np.abs(z) - Theta) ** 2
 
-
-def main() -> None:
-    dt = 0.01
-    T = 5.0
+def main() -> None: 
+    dt = 0.01 
+    T = 5.0 
     steps = int(T / dt)
 
     # Fast state (2D) and structural parameters (2D)
@@ -206,71 +169,66 @@ def main() -> None:
     print("Final energy:", energies[-1])
     print("First 10 energies:", energies[:10])
 
-
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
-
+```
 
 Run:
 
+```bash
 python examples/quickstart_toy_system.py
+```
 
+In a full LISA deployment, $f$, $g$, and $V$ will be problem-specific and derived from your control / modeling setup, but the pattern remains: explicit fast–slow dynamics, structurally meaningful updates, and energy decreasing over time.
 
-In a full LISA deployment, f, g, and V will be problem-specific and derived from
-your control / modeling setup, but the pattern remains:
+-----
 
-explicit fast–slow dynamics,
-
-structurally meaningful updates,
-
-energy decreasing over time.
-
-6. Repository Structure (example)
+## Repository Structure
 
 A typical layout for the LISA codebase might be:
 
-lisa/
-  __init__.py
-  dynamics.py      # fast dynamics f(z, u, Theta)
-  adaptation.py    # slow structural updates g(z, u, Theta)
-  energy.py        # Lyapunov / energy functions V(z, Theta)
-  simulation.py    # utilities for simulating fast–slow systems
+```text
+lisa/ 
+├── __init__.py 
+├── dynamics.py      # fast dynamics f(z, u, Theta) 
+├── adaptation.py    # slow structural updates g(z, u, Theta) 
+├── energy.py        # Lyapunov / energy functions V(z, Theta) 
+└── simulation.py    # utilities for simulating fast–slow systems
 
-examples/
-  quickstart_toy_system.py
-  ...
+examples/ 
+└── quickstart_toy_system.py 
 
-experiments/
-  ...              # experiment scripts, configs, logs
+experiments/         # experiment scripts, configs, logs
 
-tests/
-  test_energy.py
-  test_dual_timescale.py
+tests/ 
+├── test_energy.py 
+└── test_dual_timescale.py
 
-pyproject.toml or setup.py
-LICENSE
+pyproject.toml 
+LICENSE 
 README.md
+```
 
+-----
 
-Adjust this to reflect your actual repository layout.
-
-7. Testing
+## Testing
 
 If tests are provided, they can be run via:
 
+```bash
 pytest
-
+```
 
 Recommended tests include:
 
-Verifying that the energy V(z, Theta) decreases along simulated trajectories for simple systems.
+1.  Verifying that the energy $V(z, \Theta)$ decreases along simulated trajectories for simple systems.
+2.  Checking numerical stability under small perturbations in $z$, $u$, and $\Theta$.
+3.  Validating that $\epsilon$ correctly controls timescale separation (fast vs slow dynamics).
 
-Checking numerical stability under small perturbations in z, u, and Theta.
+-----
 
-Validating that epsilon correctly controls timescale separation (fast vs slow dynamics).
-
-8. Citation
+## Citation
 
 If you use LISA or build on this framework, please cite the technical report:
 
-Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control, December 2025.
+> **Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control**, December 2025.
