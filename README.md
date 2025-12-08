@@ -1,36 +1,78 @@
 # Latent Invariant Space Adaptation (LISA)
 
-Latent Invariant Space Adaptation (LISA) is a dual-timescale dynamical framework for robust adaptive control in high-dimensional learned systems.
+**A Dual-Timescale Dynamical Framework for Robust Adaptive Control**
 
-LISA treats an intelligent system not as a static function approximator, but as a **singularly perturbed dynamical system** with:
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Status: Research](https://img.shields.io/badge/Status-Research-red.svg)](https://github.com/yourusername/lisa-adaptive-control)
 
-- fast latent states z(t) governing inference and control, and  
-- slow structural parameters Theta(t) governing latent geometry and invariants.
+## 📄 Executive Summary
 
-The goal is not only to minimize prediction error, but to maintain a **low-dimensional attracting manifold** – the “latent invariant space” – on which the fast dynamics remain stable even under non-stationary inputs and distribution shift.
+The prevailing paradigm in autonomous system design bifurcates into static deep learning (prioritizing prediction error minimization) and classical adaptive control (prioritizing stability). [cite_start]**Latent Invariant Space Adaptation (LISA)** bridges this dichotomy by treating the latent structure of an agent not as a fixed map, but as a slowly varying state variable within a singularly perturbed dynamical system[cite: 198, 203].
 
----
+[cite_start]The central thesis of LISA is that robust performance in non-stationary environments is a function of maintaining a low-dimensional attracting manifold—the **Latent Invariant Space**—embedded within the high-dimensional state space[cite: 204]. [cite_start]Using **Geometric Singular Perturbation Theory (GSPT)** and **Lyapunov Stability Analysis**, LISA decouples fast state dynamics (inference) from slow structural dynamics (manifold adaptation)[cite: 205].
 
-## 1. Motivation
 
-Modern learned systems face two structural limitations:
 
-- Neural networks are typically trained in a fixed representation space and then deployed in non-stationary environments, leading to instability and interference.
-- Classical adaptive control provides stability guarantees but assumes hand-designed state spaces and relatively simple dynamics.
+## 🧮 Mathematical Formalism
 
-LISA aims to bridge these worlds:
+### Singularly Perturbed Dynamics
+[cite_start]LISA models the agent as a continuous-time dynamical system partitioned into fast and slow variables $\chi=[z^{T},\Theta^{T}]^{T}$[cite: 231]:
 
-> Control-theoretic adaptation of latent manifolds for learned systems.
+$$
+\begin{aligned}
+\dot{z} &= f(z,u,\Theta) & \text{(Fast Inference Dynamics)} \\
+\dot{\Theta} &= \epsilon g(z,u,\Theta) & \text{(Slow Structural Adaptation)}
+\end{aligned}
+$$
 
-Instead of learning a representation once and hoping it generalizes, LISA continuously **adapts the latent structure itself** while preserving stability margins.
+Where:
+* $z \in \mathbb{R}^n$: Fast latent state vector (activations).
+* $\Theta \in \mathbb{R}^p$: Structural parameters (weights/manifold curvature).
+* [cite_start]$\epsilon \ll 1$: Perturbation parameter enforcing timescale separation[cite: 237].
 
----
+### The Invariance Condition
+The system enforces an Invariance Condition where the vector field lies entirely in the tangent space of the manifold $\mathcal{M}_{\Theta}=\{z \mid \Phi(z,\Theta)=0\}$. [cite_start]The structural update $g$ is designed to restore the orthogonality condition when external inputs $u(t)$ cause drift[cite: 243]:
 
-## 2. Mathematical formulation (ASCII form)
+$$
+\nabla_{z}\Phi\cdot f + \epsilon \nabla_{\Theta}\Phi\cdot g = 0
+$$
 
-We model an agent as a singularly perturbed system:
+### Lyapunov-Driven Structural Update
+[cite_start]Unlike heuristic learning rates, the adaptation law is derived by enforcing the negative semi-definiteness of a Control Lyapunov Function $V_{total}$ representing the system's total energy (manifold deviation + structural error)[cite: 248].
 
-```text
-dot_z      = F(z, u; Theta)
-dot_Theta  = eps * G(z, u, Theta),   with 0 < eps << 1
+[cite_start]The resulting structural update law performs steepest descent on the error surface[cite: 271]:
+
+$$
+\Theta = -\Gamma \phi(z,u)\eta^T
+$$
+
+[cite_start]This guarantees that the manifold reconstruction error $\eta(t)$ converges asymptotically and parameters remain bounded[cite: 275].
+
+## 📉 Comparative Analysis
+
+| Framework | Optimization Objective | Dynamics | Stability Guarantee |
+| :--- | :--- | :--- | :--- |
+| **Predictive Coding** | Minimize Prediction Error (Free Energy) | State updates via error min; Hebbian weights | [cite_start]Local Minima [cite: 283] |
+| **Meta-Learning (MAML)** | Adaptability (Fast Adaptation) | Discrete, episodic optimization | [cite_start]Statistical Convergence [cite: 292] |
+| **LISA** | **Manifold Stability** | **Continuous ODEs (Dual-Timescale)** | [cite_start]**Uniform Ultimate Boundedness** [cite: 297] |
+
+## ⚙️ Implementation Note
+
+[cite_start]The LISA Adaptation Algorithm runs in parallel with the fast dynamics as a continuous differential equation[cite: 280]:
+
+$$
+\dot{\Theta} = -\epsilon \Gamma \nabla_{\Theta} \mathcal{L}_{recon}
+$$
+
+## 📚 Citation
+
+If you utilize the LISA framework in your research, please cite the technical report:
+
+```bibtex
+@techreport{lisa2025,
+  title={Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control},
+  year={2025},
+  month={December},
+  note={Implements Geometric Singular Perturbation Theory for Manifold Stability}
+}
 
