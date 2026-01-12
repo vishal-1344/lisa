@@ -4,14 +4,14 @@
 *(built on a dual-timescale framework for manifold-stable adaptive control)*
 
 > "Robust system performance is not merely a function of error minimization, but rather the result of maintaining a low-dimensional attracting manifold."  
-> — **LISA Technical Report**
+> **LISA Technical Report**
 
 ## Overview
 
 **LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, LISA models an agent as a **singularly perturbed dynamical system** with:
 
-1. **Fast behavioral dynamics** — what the system is doing right now.
-2. **Slow structural dynamics** — how the underlying representation/manifold adapts to remain stable under drift.
+1. **Fast behavioral dynamics**: what the system is doing right now.
+2. **Slow structural dynamics**: how the underlying representation/manifold adapts to remain stable under drift.
 
 The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space, even when the environment changes.
 
@@ -281,3 +281,4 @@ If you use LISA or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators), Technical Report, 2025–2026.
 ```
+
