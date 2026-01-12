@@ -76,7 +76,7 @@ Under appropriate conditions, this yields boundedness (and often **UUB** in non-
 
 ## Optional Self-Governing Extensions (v2.x)
 
-In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. LISA optionally adds two *bounded modulators* that regulate **how much** and **when** the slow update runs — without changing the underlying Lyapunov direction.
+In highly stochastic environments, always on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. LISA optionally adds two *bounded modulators* that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
 
 ### A) Perceptual Gravity (State-Dependent Timescale Dilation)
 
@@ -281,5 +281,6 @@ If you use LISA or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators), Technical Report, 2025–2026.
 ```
+
 
 
