@@ -1,7 +1,7 @@
 # LISA: Latent Invariant Space Adaptation
 
 ### A Relativistic, Self-Governing Dynamical Architecture  
-*(built on a dual-timescale framework for manifold-stable adaptive control)*
+*Built on a dual-timescale framework for manifold-stable adaptive control*
 
 > "Robust system performance is not merely a function of error minimization, but rather the result of maintaining a low-dimensional attracting manifold."  
 > **LISA Technical Report**
@@ -281,4 +281,5 @@ If you use LISA or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators), Technical Report, 2025–2026.
 ```
+
 
