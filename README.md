@@ -94,11 +94,11 @@ Synthetic dopamine is a directional, epistemic plasticity gate that governs when
 
 A bounded gate suppresses learning under likely noise and enables learning under reliable novelty that coherently advances the system toward its internal objective boundary:
 
-$\mathcal{D}_t = \sigma\!\left( \frac{\delta(t)}{\Sigma(t)+\xi} - \tau_{\text{th}} \right), \qquad \mathcal{D}_t \in [0,1]$
+$$\mathcal{D}_t = \sigma\!\left( \frac{\delta(t)}{\Sigma(t)+\xi} - \tau_{\text{th}} \right), \qquad \mathcal{D}_t \in [0,1]$$
 
 - $\delta(t)$: surprise proxy (e.g., $\|\eta(t)\|$, prediction residual, or manifold deviation)
 - $\Sigma(t)$: uncertainty proxy (running variance, learned uncertainty head, etc.)
-- $\xi>0$: numerical stabilizer
+- $\xi > 0$: numerical stabilizer
 - $\tau_{\text{th}}$: novelty threshold
 
 This gate establishes eligibility for adaptation, suppressing noise-driven plasticity while permitting learning under structured, reliable surprise.
@@ -297,3 +297,4 @@ Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust 
 **Note:** If you want, I can also write:
 - a tight **"Design Philosophy"** section (3–5 bullets) that matches your voice, and/or
 - a **README "Roadmap"** that maps planned repo modules (e.g., `psi.py`, `regressors.py`, `gsp_theory.md`) to the paper sections.
+
