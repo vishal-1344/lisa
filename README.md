@@ -106,6 +106,166 @@ $$\dot{\Theta} = -\epsilon_{\text{base}}\,\gamma_t\,\mathcal{D}_t\,\Gamma\,\phi(
 
 Interpretation: same stability-driven update direction, with bounded scheduling of **intensity** ($\gamma_t$) and **validity** ($\mathcal{D}_t$).
 
+B) Synthetic Dopamine (Epistemic Plasticity Gating)
+
+Synthetic dopamine is a directional, epistemic plasticity gate that governs when learning is legitimate, rather than serving as a reward signal.
+
+A bounded gate suppresses learning under likely noise and enables learning under reliable novelty that coherently advances the system toward its internal objective boundary:
+
+𝐷
+𝑡
+=
+𝜎
+ ⁣
+(
+𝛿
+(
+𝑡
+)
+Σ
+(
+𝑡
+)
++
+𝜉
+−
+𝜏
+th
+)
+,
+𝐷
+𝑡
+∈
+[
+0
+,
+1
+]
+D
+t
+	​
+
+=σ(
+Σ(t)+ξ
+δ(t)
+	​
+
+−τ
+th
+	​
+
+),D
+t
+	​
+
+∈[0,1]
+
+Where:
+
+𝛿
+(
+𝑡
+)
+δ(t) — surprise proxy
+(e.g., 
+∥
+𝜂
+(
+𝑡
+)
+∥
+∥η(t)∥, prediction residual, or manifold deviation)
+
+Σ
+(
+𝑡
+)
+Σ(t) — uncertainty proxy
+(running variance, learned uncertainty head, etc.)
+
+𝜉
+>
+0
+ξ>0 — numerical stabilizer
+
+𝜏
+th
+τ
+th
+	​
+
+ — novelty threshold
+
+This gate establishes eligibility for adaptation, suppressing noise-driven plasticity while permitting learning under structured, reliable surprise.
+
+Crucially, synthetic dopamine is interpreted not as novelty alone, but as a carrier of purpose:
+it activates most strongly when multiple, independently ambiguous internal factors (e.g., features, residual components, predictive cues) converge directionally toward the same objective trajectory, and when such convergence persists over time as causal progress.
+
+Unified Modulated Slow Law
+
+The self-governing slow update retains the same stability-driven direction, with modulation applied only to when and how strongly adaptation occurs:
+
+Θ
+˙
+=
+−
+𝜖
+base
+  
+𝛾
+𝑡
+  
+𝐷
+𝑡
+  
+Γ
+  
+𝜙
+(
+𝑧
+,
+𝑢
+)
+  
+𝜂
+𝑇
+Θ
+˙
+=−ϵ
+base
+	​
+
+γ
+t
+	​
+
+D
+t
+	​
+
+Γϕ(z,u)η
+T
+
+Where:
+
+𝛾
+𝑡
+γ
+t
+	​
+
+ — intensity / timescale modulation (perceptual gravity)
+
+𝐷
+𝑡
+D
+t
+	​
+
+ — epistemic validity and directional coherence gate
+
+Interpretation:
+the update direction remains Lyapunov-aligned and stability-preserving, while synthetic dopamine schedules adaptation legitimacy, enabling learning only when novelty is reliable, coherent across signals, and aligned with sustained progress toward the system’s objective boundary.
 ---
 
 ## Key Features
@@ -281,6 +441,7 @@ If you use LISA or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators), Technical Report, 2025–2026.
 ```
+
 
 
 
