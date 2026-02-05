@@ -8,14 +8,18 @@
 
 ## Overview
 
-**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, LISA models an agent as a **singularly perturbed dynamical system** with:
+**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, LISA treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, **LISA can be viewed as an inference-time control and meta-optimization framework**: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
+
+LISA models an agent as a **singularly perturbed dynamical system** with:
 
 1. **Fast behavioral dynamics**: what the system is doing right now.
-2. **Slow structural dynamics**: how the underlying representation/manifold adapts to remain stable under drift.
+2. **Slow structural dynamics**: how the underlying structure that shapes behavior is regulated to remain stable under drift.
 
-The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space, even when the environment changes.
+The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent even when inputs, statistics, or regimes shift.
 
-LISA additionally supports an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change.
+**Crucially, LISA is not a training-time method.** It does not require retraining epochs or overwriting the underlying model parameters. Instead, it adapts the process of inference and structural regulation using stability-aligned signals, enabling robust behavior in non-stationary settings.
+
+LISA additionally supports an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change. Operationally, coherence functions as a trust signal that modulates commitment strength, rather than introducing symbolic reasoning or explicit causal graphs.
 
 ---
 
@@ -24,7 +28,7 @@ LISA additionally supports an **interpretive layer** that treats invariants as p
 - **Fast latent state** $z(t)$ evolves continuously under current structure $\Theta(t)$ and input $u(t)$.
 - **Slow structural parameters** $\Theta(t)$ adapt under a small timescale parameter $\epsilon$, derived from (or aligned with) a **Lyapunov-style energy** $V(z,\Theta)$.
 
-Structural updates are designed to reduce a global energy/tension metric and restore *invariance* (or attraction) of the latent manifold, yielding robustness under distribution drift.
+Structural updates are designed to reduce a global energy or tension metric and restore *invariance* or *attraction* of the latent manifold, yielding robustness under distribution drift.
 
 ### Interpretive Layer: Meaning as Invariant Coherence
 
@@ -43,7 +47,7 @@ LISA evolves on two explicitly separated timescales $(t,\tau)$.
 $$\dot{z} = f(z, u, \Theta)$$
 
 - $z$: fast latent state (behavior, beliefs, internal representation)
-- $u$: external input/control signal
+- $u$: external input or control signal
 - $\Theta$: structural parameters (geometry, invariants, slow weights)
 - $f$: vector field for fast dynamics
 
@@ -52,7 +56,7 @@ $$\dot{z} = f(z, u, \Theta)$$
 $$\dot{\Theta} = \epsilon \, g(z, u, \Theta)$$
 
 - $\epsilon>0$: small timescale separation parameter
-- $g$: structural update field (plasticity/adaptation rule)
+- $g$: structural update field (plasticity or adaptation rule)
 
 The small $\epsilon$ enforces **fast reaction, slow adaptation**.
 
@@ -75,7 +79,7 @@ A canonical Lyapunov-aligned update is:
 $$\dot{\Theta} = -\Gamma\,\phi(z,u)\,\eta^T$$
 
 - $\Gamma$: positive-definite adaptation gain
-- $\phi(z,u)$: regressor/features
+- $\phi(z,u)$: regressor or features
 - $\eta$: manifold reconstruction error
 
 Under appropriate conditions, this yields boundedness (and often **UUB** in non-ideal settings).
@@ -139,7 +143,7 @@ from which coherence can be derived:
 
 $$\mathcal{C}(t) = h(e(t)) \in [0,1]$$
 
-This prevents uncontrolled drift while allowing LISA's slow dynamics to continue consolidating stable latent structure. In effect, ERROR-360 guards the trajectory while LISA shapes the representation.
+This prevents uncontrolled drift while allowing LISA's slow dynamics to continue consolidating stable latent structure. In effect, ERROR-360 guards the trajectory while LISA shapes the structure.
 
 ### Unified Modulated Slow Law (with Coherence)
 
@@ -147,11 +151,11 @@ The self-governing slow update retains the same stability-driven direction, with
 
 $$\dot{\Theta} = - \epsilon_{\text{base}} \; \gamma_t \; \mathcal{D}_t \; \mathcal{C}(t) \; \Gamma \; \phi(z,u) \; \eta^{\mathsf{T}}$$
 
-- $\gamma_t$: intensity/timescale modulation (perceptual gravity)
+- $\gamma_t$: intensity or timescale modulation (perceptual gravity)
 - $\mathcal{D}_t$: epistemic validity and directional coherence gate (synthetic dopamine)
-- $\mathcal{C}(t)$: coherence-based trust modulation (invariant compatibility / ERROR-360 aggregation)
+- $\mathcal{C}(t)$: coherence-based trust modulation (invariant compatibility or ERROR-360 aggregation)
 
-**Interpretation**: the update direction remains Lyapunov-aligned and stability-preserving, while the gates schedule adaptation legitimacy and trust. When coherence is high, the system can commit strongly; when coherence degrades, the system relaxes bias and avoids causal fixation, enabling flexible bias alteration under abrupt change.
+**Interpretation**: the update direction remains Lyapunov-aligned and stability-preserving, while the gates schedule adaptation legitimacy and trust. When coherence is high, the system can commit strongly. When coherence degrades, the system relaxes bias and avoids causal fixation, enabling flexible bias alteration under abrupt change.
 
 ---
 
@@ -160,8 +164,8 @@ $$\dot{\Theta} = - \epsilon_{\text{base}} \; \gamma_t \; \mathcal{D}_t \; \mathc
 - **Dual-timescale separation**: explicit $\epsilon$ enables singular perturbation analysis and cleanly separates fast behavior from slow structure.
 - **Manifold-stable adaptation**: updates aim to maintain (or restore) an attracting invariant manifold under drift.
 - **Lyapunov-driven learning**: structural updates are aligned with energy decrease and boundedness, not heuristic learning rates.
-- **Continuous-time operation**: conceptually no epochs/batches required; learning runs in parallel with behavior.
-- **(Optional) Self-governance**: Perceptual Gravity + Synthetic Dopamine provide bounded gain scheduling to avoid learning-on-noise while responding to genuine regime change.
+- **Continuous-time operation**: conceptually no epochs or batches required.
+- **(Optional) Self-governance**: Perceptual Gravity and Synthetic Dopamine provide bounded gain scheduling to avoid learning-on-noise while responding to genuine regime change.
 - **Flexible bias alteration**: strong latent structure is permitted, but its influence is continuously modulated by coherence, preventing permanent fixation while preserving adaptive meaning.
 
 ---
@@ -195,10 +199,10 @@ Create `examples/quickstart_toy_system.py`:
 Quickstart: LISA-style dual-timescale dynamics on a toy system.
 
 Illustrates:
-1) fast state dynamics:    dz/dt = f(z, u, Theta)
+1) fast state dynamics:     dz/dt = f(z, u, Theta)
 2) slow structural dynamics dTheta/dt = epsilon * g(z, u, Theta)
-3) Lyapunov-like energy    V(z, Theta)
-4) optional modulators:    gamma_t (Perceptual Gravity), D_t (Synthetic Dopamine)
+3) Lyapunov-like energy     V(z, Theta)
+4) optional modulators:     gamma_t (Perceptual Gravity), D_t (Synthetic Dopamine)
 """
 
 from __future__ import annotations
@@ -284,7 +288,7 @@ Run:
 python examples/quickstart_toy_system.py
 ```
 
-In a real LISA deployment, $f$, $g$, $\Psi$, $V$, $\mathcal{I}(t)$, and $\mathcal{C}(t)$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, stability-aligned adaptation, and a coherence-modulated legitimacy schedule that prevents drift while preserving meaningful representation formation.
+In a real LISA deployment, $f$, $g$, $\Psi$, $V$, $\mathcal{I}(t)$, and $\mathcal{C}(t)$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, stability-aligned adaptation, and a coherence-modulated legitimacy schedule that prevents drift while preserving meaningful structure.
 
 ## Repository Structure
 
