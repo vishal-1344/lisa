@@ -8,7 +8,7 @@
 
 ## Overview
 
-**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, **LISA** treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, **LISA** can be viewed as an **inference-time control** and **meta-optimization** framework: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
+**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, the *controller* treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, *LISA* can be viewed as an **inference-time control** and **meta-optimization** framework: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
 
 *LISA* models an agent as a **singularly perturbed dynamical system** with:
 
@@ -17,7 +17,7 @@
 
 The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent even when inputs, statistics, or regimes shift.
 
-Crucially, **LISA** is not a training-time method. It does not require retraining epochs or overwriting the underlying model parameters. Instead, it adapts the process of inference and structural regulation using stability-aligned signals, enabling robust behavior in non-stationary settings.
+Crucially, *LISA* is not a training-time method. It does not require retraining epochs or overwriting the underlying model parameters. Instead, it adapts the process of inference and structural regulation using stability-aligned signals, enabling robust behavior in non-stationary settings.
 
 *LISA* additionally supports an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change. Operationally, coherence functions as a trust signal that modulates commitment strength, rather than introducing symbolic reasoning or explicit causal graphs.
 
@@ -335,6 +335,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
