@@ -1,4 +1,4 @@
-# LISA: Latent Invariant Space Adaptation
+# *LISA*: Latent Invariant Space Adaptation
 
 ### A Relativistic, Self-Governing Dynamical Architecture  
 *(built on a dual-timescale framework for manifold-stable adaptive control)*
@@ -8,18 +8,18 @@
 
 ## Overview
 
-**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, LISA treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, *LISA* can be viewed as an **inference-time control** and **meta-optimization** framework: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
+**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, **LISA** treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, **LISA** can be viewed as an **inference-time control** and **meta-optimization** framework: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
 
-LISA models an agent as a **singularly perturbed dynamical system** with:
+*LISA* models an agent as a **singularly perturbed dynamical system** with:
 
 1. **Fast behavioral dynamics**: what the system is doing right now.
 2. **Slow structural dynamics**: how the underlying structure that shapes behavior is regulated to remain stable under drift.
 
 The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent even when inputs, statistics, or regimes shift.
 
-Crucially, *LISA* is not a training-time method. It does not require retraining epochs or overwriting the underlying model parameters. Instead, it adapts the process of inference and structural regulation using stability-aligned signals, enabling robust behavior in non-stationary settings.
+Crucially, **LISA** is not a training-time method. It does not require retraining epochs or overwriting the underlying model parameters. Instead, it adapts the process of inference and structural regulation using stability-aligned signals, enabling robust behavior in non-stationary settings.
 
-LISA additionally supports an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change. Operationally, coherence functions as a trust signal that modulates commitment strength, rather than introducing symbolic reasoning or explicit causal graphs.
+*LISA* additionally supports an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change. Operationally, coherence functions as a trust signal that modulates commitment strength, rather than introducing symbolic reasoning or explicit causal graphs.
 
 ---
 
@@ -32,7 +32,7 @@ Structural updates are designed to reduce a global energy or tension metric and 
 
 ### Interpretive Layer: Meaning as Invariant Coherence
 
-Stability alone does not guarantee rational behavior under non-stationarity. In practice, a system can observe a pattern for a long time and incorrectly treat it as universal. LISA therefore treats invariants as monitored hypotheses. **Meaning is defined operationally as the degree to which multiple invariant candidates remain mutually coherent as the latent dynamics evolve.**
+Stability alone does not guarantee rational behavior under non-stationarity. In practice, a system can observe a pattern for a long time and incorrectly treat it as universal. *LISA* therefore treats invariants as monitored hypotheses. **Meaning is defined operationally as the degree to which multiple invariant candidates remain mutually coherent as the latent dynamics evolve.**
 
 Mutual coherence is evaluated geometrically (rather than symbolically) through persistent agreement across dynamical signatures such as frequency structure, oscillatory coupling, phase alignment, temporal consistency, and shared response under perturbation. When coherence is high, the system can commit strongly to the induced structure. When coherence degrades, the system relaxes its commitment without requiring retraining or overwriting parameters, yielding flexible bias alteration rather than permanent fixation.
 
@@ -40,7 +40,7 @@ Mutual coherence is evaluated geometrically (rather than symbolically) through p
 
 ## Mathematical Formulation
 
-LISA evolves on two explicitly separated timescales $(t,\tau)$.
+*LISA* evolves on two explicitly separated timescales $(t,\tau)$.
 
 ### 1) Fast State Dynamics (Behavioral Layer)
 
@@ -70,7 +70,7 @@ where $\Psi(u,\Theta)$ estimates the manifold location for input $u$.
 
 ### 4) Lyapunov-Driven Structural Update (Canonical Form)
 
-LISA derives slow adaptation from a Lyapunov argument so that a composite energy decreases:
+*LISA* derives slow adaptation from a Lyapunov argument so that a composite energy decreases:
 
 $$V_{\text{total}}(z,\Theta)=\frac{1}{2} \eta^T\eta+\frac{1}{2}\mathrm{tr}(\tilde{\Theta}^T\Gamma^{-1}\tilde{\Theta})$$
 
@@ -102,7 +102,7 @@ that measures mutual agreement among these invariant signals. Coherence increase
 
 ## Optional Self-Governing Extensions (v2.x)
 
-In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. LISA optionally adds bounded modulators that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
+In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. *LISA* optionally adds bounded modulators that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
 
 ### A) Perceptual Gravity (State-Dependent Timescale Dilation)
 
@@ -143,7 +143,7 @@ from which coherence can be derived:
 
 $$\mathcal{C}(t) = h(e(t)) \in [0,1]$$
 
-This prevents uncontrolled drift while allowing LISA's slow dynamics to continue consolidating stable latent structure. In effect, ERROR-360 guards the trajectory while LISA shapes the structure.
+This prevents uncontrolled drift while allowing *LISA*'s slow dynamics to continue consolidating stable latent structure. In effect, ERROR-360 guards the trajectory while *LISA* shapes the structure.
 
 ### Unified Modulated Slow Law (with Coherence)
 
@@ -173,8 +173,8 @@ $$\dot{\Theta} = - \epsilon_{\text{base}} \; \gamma_t \; \mathcal{D}_t \; \mathc
 ## Installation
 
 ```bash
-git clone https://github.com/vishal-1344/lisa.git
-cd lisa
+git clone https://github.com/vishal-1344/*LISA*.git
+cd *LISA*
 pip install -e .
 ```
 
@@ -187,7 +187,7 @@ pip install -r requirements.txt
 Then:
 
 ```python
-import lisa
+import *LISA*
 ```
 
 ## Quickstart: Toy Dual-Timescale System (with Optional Modulators)
@@ -196,7 +196,7 @@ Create `examples/quickstart_toy_system.py`:
 
 ```python
 """
-Quickstart: LISA-style dual-timescale dynamics on a toy system.
+Quickstart: *LISA*-style dual-timescale dynamics on a toy system.
 
 Illustrates:
 1) fast state dynamics:     dz/dt = f(z, u, Theta)
@@ -288,12 +288,12 @@ Run:
 python examples/quickstart_toy_system.py
 ```
 
-In a real LISA deployment, $f$, $g$, $\Psi$, $V$, $\mathcal{I}(t)$, and $\mathcal{C}(t)$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, stability-aligned adaptation, and a coherence-modulated legitimacy schedule that prevents drift while preserving meaningful structure.
+In a real *LISA* deployment, $f$, $g$, $\Psi$, $V$, $\mathcal{I}(t)$, and $\mathcal{C}(t)$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, stability-aligned adaptation, and a coherence-modulated legitimacy schedule that prevents drift while preserving meaningful structure.
 
 ## Repository Structure
 
 ```
-lisa/
+*LISA*/
 ├── __init__.py
 ├── dynamics.py      # fast dynamics f(z, u, Theta)
 ├── adaptation.py    # slow updates g(z, u, Theta) (+ modulators)
@@ -329,11 +329,12 @@ Recommended tests include:
 
 ## Citation
 
-If you use LISA or build on this framework, please cite the technical report:
+If you use *LISA* or build on this framework, please cite the technical report:
 
 ```
-Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control 
+Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
