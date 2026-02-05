@@ -15,6 +15,8 @@
 
 The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space, even when the environment changes.
 
+LISA additionally supports an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change.
+
 ---
 
 ## Core Idea (Dual Timescales + Manifold Stability)
@@ -23,6 +25,12 @@ The central idea is **manifold stability**: maintain a low-dimensional *attracti
 - **Slow structural parameters** $\Theta(t)$ adapt under a small timescale parameter $\epsilon$, derived from (or aligned with) a **Lyapunov-style energy** $V(z,\Theta)$.
 
 Structural updates are designed to reduce a global energy/tension metric and restore *invariance* (or attraction) of the latent manifold, yielding robustness under distribution drift.
+
+### Interpretive Layer: Meaning as Invariant Coherence
+
+Stability alone does not guarantee rational behavior under non-stationarity. In practice, a system can observe a pattern for a long time and incorrectly treat it as universal. LISA therefore treats invariants as monitored hypotheses. **Meaning is defined operationally as the degree to which multiple invariant candidates remain mutually coherent as the latent dynamics evolve.**
+
+Mutual coherence is evaluated geometrically (rather than symbolically) through persistent agreement across dynamical signatures such as frequency structure, oscillatory coupling, phase alignment, temporal consistency, and shared response under perturbation. When coherence is high, the system can commit strongly to the induced structure. When coherence degrades, the system relaxes its commitment without requiring retraining or overwriting parameters, yielding flexible bias alteration rather than permanent fixation.
 
 ---
 
@@ -72,11 +80,25 @@ $$\dot{\Theta} = -\Gamma\,\phi(z,u)\,\eta^T$$
 
 Under appropriate conditions, this yields boundedness (and often **UUB** in non-ideal settings).
 
+### 5) Invariant Set and Coherence Signal
+
+Let
+
+$$\mathcal{I}(t) = \{I_k(t)\}_{k=1}^K$$
+
+denote a set of latent invariant candidates derived from the dynamics of $z(t)$ and $\Theta(t)$ (e.g., mode-wise manifold deviations, spectral structure of latent trajectories, energy partitions, cross-timescale consistency checks, or other invariant-like signals).
+
+Define a coherence functional:
+
+$$\mathcal{C}(t) \in [0,1]$$
+
+that measures mutual agreement among these invariant signals. Coherence increases when invariant candidates remain compatible across time and frequency (oscillatory structure, phase coupling, persistence), and decreases when they conflict or drift apart. **Coherence collapse is treated as evidence for regime shift, anomaly, or structural mismatch**, even when individual invariants appear locally stable.
+
 ---
 
 ## Optional Self-Governing Extensions (v2.x)
 
-In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. LISA optionally adds two *bounded modulators* that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
+In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. LISA optionally adds bounded modulators that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
 
 ### A) Perceptual Gravity (State-Dependent Timescale Dilation)
 
@@ -105,16 +127,31 @@ This gate establishes eligibility for adaptation, suppressing noise-driven plast
 
 Crucially, synthetic dopamine is interpreted not as novelty alone, but as a carrier of purpose: it activates most strongly when multiple, independently ambiguous internal factors (e.g., features, residual components, predictive cues) converge directionally toward the same objective trajectory, and when such convergence persists over time as causal progress.
 
-### Unified Modulated Slow Law
+### C) ERROR-360 (Multi-Perspective Geometric Diagnostics)
+
+**ERROR-360** is a fast diagnostic layer that monitors the latent dynamics from multiple independent geometric perspectives. Rather than treating error as a single scalar, it exposes structured deviation signals that detect drift, oscillatory disagreement, instability, and incoherence early.
+
+Let ERROR-360 produce a diagnostic vector:
+
+$$e(t) = [e_1(t), \ldots, e_M(t)]$$
+
+from which coherence can be derived:
+
+$$\mathcal{C}(t) = h(e(t)) \in [0,1]$$
+
+This prevents uncontrolled drift while allowing LISA's slow dynamics to continue consolidating stable latent structure. In effect, ERROR-360 guards the trajectory while LISA shapes the representation.
+
+### Unified Modulated Slow Law (with Coherence)
 
 The self-governing slow update retains the same stability-driven direction, with modulation applied only to when and how strongly adaptation occurs:
 
-$$\dot{\Theta} = - \epsilon_{\text{base}} \; \gamma_t \; \mathcal{D}_t \; \Gamma \; \phi(z,u) \; \eta^{\mathsf{T}}$$
+$$\dot{\Theta} = - \epsilon_{\text{base}} \; \gamma_t \; \mathcal{D}_t \; \mathcal{C}(t) \; \Gamma \; \phi(z,u) \; \eta^{\mathsf{T}}$$
 
 - $\gamma_t$: intensity/timescale modulation (perceptual gravity)
-- $\mathcal{D}_t$: epistemic validity and directional coherence gate
+- $\mathcal{D}_t$: epistemic validity and directional coherence gate (synthetic dopamine)
+- $\mathcal{C}(t)$: coherence-based trust modulation (invariant compatibility / ERROR-360 aggregation)
 
-Interpretation: the update direction remains Lyapunov-aligned and stability-preserving, while synthetic dopamine schedules adaptation legitimacy, enabling learning only when novelty is reliable, coherent across signals, and aligned with sustained progress toward the system's objective boundary.
+**Interpretation**: the update direction remains Lyapunov-aligned and stability-preserving, while the gates schedule adaptation legitimacy and trust. When coherence is high, the system can commit strongly; when coherence degrades, the system relaxes bias and avoids causal fixation, enabling flexible bias alteration under abrupt change.
 
 ---
 
@@ -125,6 +162,7 @@ Interpretation: the update direction remains Lyapunov-aligned and stability-pres
 - **Lyapunov-driven learning**: structural updates are aligned with energy decrease and boundedness, not heuristic learning rates.
 - **Continuous-time operation**: conceptually no epochs/batches required; learning runs in parallel with behavior.
 - **(Optional) Self-governance**: Perceptual Gravity + Synthetic Dopamine provide bounded gain scheduling to avoid learning-on-noise while responding to genuine regime change.
+- **Flexible bias alteration**: strong latent structure is permitted, but its influence is continuously modulated by coherence, preventing permanent fixation while preserving adaptive meaning.
 
 ---
 
@@ -246,7 +284,7 @@ Run:
 python examples/quickstart_toy_system.py
 ```
 
-In a real LISA deployment, $f$, $g$, $\Psi$, and $V$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, and stability-aligned adaptation, optionally regulated by bounded self-governing gains.
+In a real LISA deployment, $f$, $g$, $\Psi$, $V$, $\mathcal{I}(t)$, and $\mathcal{C}(t)$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, stability-aligned adaptation, and a coherence-modulated legitimacy schedule that prevents drift while preserving meaningful representation formation.
 
 ## Repository Structure
 
@@ -256,6 +294,7 @@ lisa/
 ├── dynamics.py      # fast dynamics f(z, u, Theta)
 ├── adaptation.py    # slow updates g(z, u, Theta) (+ modulators)
 ├── energy.py        # Lyapunov / energy functions V(z, Theta)
+├── coherence.py     # invariant coherence C(t) from I(t) / ERROR-360 diagnostics
 └── simulation.py    # utilities for simulating fast-slow systems
 
 examples/
@@ -281,7 +320,8 @@ Recommended tests include:
 
 - Verify $V$ decreases (or remains bounded) on simple systems.
 - Check numerical stability under small perturbations in $z$, $u$, $\Theta$.
-- Validate that $\epsilon_{\text{base}}$ controls timescale separation, and that $\gamma_t$, $\mathcal{D}_t$ remain bounded.
+- Validate that $\epsilon_{\text{base}}$ controls timescale separation, and that $\gamma_t$, $\mathcal{D}_t$, and $\mathcal{C}(t)$ remain bounded.
+- Stress-test regime shifts: confirm coherence collapse precedes unstable adaptation and that bias is relaxed rather than fixated.
 
 ## Citation
 
@@ -289,5 +329,5 @@ If you use LISA or build on this framework, please cite the technical report:
 
 ```
 Latent Invariant Space Adaptation (LISA): A Dual-Timescale Framework for Robust Adaptive Control 
-(with self-governing modulators), Technical Report, 2025-2026.
+(with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
