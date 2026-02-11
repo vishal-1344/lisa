@@ -11,10 +11,10 @@
 
 *LISA* models an agent as a **singularly perturbed dynamical system** with:
 
-1. **Fast behavioral dynamics**: what the system does currently
+1. **Fast behavioral dynamics**: what the system does in the present.
 2. **Slow structural dynamics**: how the underlying structure shaping the behavior is perceived and regulated to remain stable under drift.
 
-The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent even when inputs, statistics, or regimes shift.
+The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent when inputs, statistics, or regimes shift.
 
 Crucially, *LISA* is not a training-time method. It does not require retraining epochs or overwriting the underlying model parameters. Instead, it adapts the process of inference and structural regulation using stability-aligned signals, enabling robust behavior in non-stationary settings.
 
@@ -99,7 +99,7 @@ that measures mutual agreement among these invariant signals. Coherence increase
 
 ---
 
-## Optional Self-Governing Extensions (v2.x)
+## Optional Self-Governing Extensions
 
 In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. *LISA* optionally adds bounded modulators that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
 
@@ -334,6 +334,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
