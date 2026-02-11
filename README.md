@@ -12,7 +12,7 @@
 *LISA* models an agent as a **singularly perturbed dynamical system** with:
 
 1. **Fast behavioral dynamics**: what the system does currently
-2. **Slow structural dynamics**: how the underlying structure that shapes behavior is regulated to remain stable under drift.
+2. **Slow structural dynamics**: how the underlying structure shaping the behavior is perceived and regulated to remain stable under drift.
 
 The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent even when inputs, statistics, or regimes shift.
 
@@ -334,6 +334,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
