@@ -132,7 +132,7 @@ Crucially, synthetic dopamine is interpreted not as novelty alone, but as a carr
 
 ### C) ERROR-360 (Multi-Perspective Geometric Diagnostics)
 
-**ERROR-360** is a fast diagnostic layer that monitors the latent dynamics from multiple independent geometric perspectives. Rather than treating error as a single scalar, it exposes structured deviation signals that detect drift, oscillatory disagreement, instability, and incoherence early.
+**ERROR-360** is a fast diagnostic layer that monitors the latent dynamics from multiple independent geometric perspectives. Instead of treating error as a single scalar, it exposes structured deviation signals that detect drift, oscillatory inharmony, instability, and incoherence early.
 
 Let ERROR-360 produce a diagnostic vector:
 
@@ -334,6 +334,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
