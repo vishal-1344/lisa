@@ -3,7 +3,7 @@
 ### A Relativistic, Self-Governing Dynamical Architecture  
 *(built on a dual-timescale framework for manifold-stable adaptive control)*
 
-> "Robust system performance is not merely a function of error minimization, but rather the result of maintaining a low-dimensional attracting manifold."  
+> "Robust system performance is not just an outcome of error minimization, but rather maintaining a low-dimensional attracting manifold."  
 > **LISA Technical Report**
 
 ## Overview
@@ -335,6 +335,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
