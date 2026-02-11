@@ -22,7 +22,7 @@ Crucially, *LISA* is not a training-time method. It does not require retraining 
 
 ---
 
-## Core Idea (Dual Timescales + Manifold Stability)
+## Core Idea - Dual Timescales + Manifold Stability
 
 - **Fast latent state** $z(t)$ evolves continuously under current structure $\Theta(t)$ and input $u(t)$.
 - **Slow structural parameters** $\Theta(t)$ adapt under a small timescale parameter $\epsilon$, derived from (or aligned with) a **Lyapunov-style energy** $V(z,\Theta)$.
@@ -334,6 +334,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
