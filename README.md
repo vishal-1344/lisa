@@ -1,6 +1,6 @@
 # LISA: Latent Invariant Space Adaptation
 
-LISA converts static neural inference into a closed-loop, dual-timescale dynamical system that guarantees latent manifold stability under environmental non-stationarity.
+*The architecture converts static neural inference into a closed-loop, dual-timescale dynamical system that guarantees latent manifold stability under environmental non-stationarity.*
 
 ---
 
@@ -224,3 +224,4 @@ LISA/
 Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions 
 and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
 ```
+
