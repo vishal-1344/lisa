@@ -1,6 +1,6 @@
 # LISA: Latent Invariant Space Adaptation
 
-***LISA** formalizes neural inference as a closed-loop, dual-timescale dynamical system that maintains latent manifold stability under environmental non-stationarity.*
+**LISA** formalizes neural inference as a closed-loop, dual-timescale dynamical system that maintains latent manifold stability under environmental non-stationarity.
 
 ## Overview
 
@@ -18,18 +18,18 @@ LISA functions as a regulatory layer for the latent trajectory produced during i
 
 ```mermaid
 flowchart TD
-    x[Observation (x_t)] --> BM[Base Model (Read-Access Only)]
+    x[Observation x_t] --> BM[Base Model Read-Access Only]
     BM --> z_nom[u_nominal, z_t]
-    z_nom --> LISA[LISA: Closed-Loop Inference Controller]
-    LISA --> UF[u_filtered (Safe, Coherent Action)]
+    z_nom --> LISA[LISA Closed-Loop Inference Controller]
+    LISA --> UF[u_filtered Safe Coherent Action]
     UF --> ENV[Environment]
 
-    subgraph LISA_module["LISA Internals (Fast t / Slow τ)"]
-        LISA --> P[1. probers: Reachability & Momentum (BRT)]
-        LISA --> E[2. energy: Meta-Proprioception V(z)]
-        LISA --> CBF[3. cbf: Dynamic Safety Filter h(z)]
-        LISA --> COH[4. coherence: ERROR-360 & Epistemic Gating]
-        LISA --> ADAP[5. adaptation: Slow Manifold Warping (Theta)]
+    subgraph LISA_module[LISA Internals Fast t Slow τ]
+        LISA --> P[1. probers Reachability and Momentum BRT]
+        LISA --> E[2. energy Meta-Proprioception V]
+        LISA --> CBF[3. cbf Dynamic Safety Filter h]
+        LISA --> COH[4. coherence ERROR-360 and Epistemic Gating]
+        LISA --> ADAP[5. adaptation Slow Manifold Warping Theta]
     end
 ```
 
@@ -193,4 +193,3 @@ LISA/
 ## Citation
 
 > Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
-
