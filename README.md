@@ -2,7 +2,7 @@
 
 ## Overview
 
-**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. Rather than treating a model as a static function trained once and frozen, the *controller* treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, *LISA* can be viewed as an **inference-time control** and **meta-optimization** framework: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
+**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. The *controller* treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, *LISA* can be viewed as an **inference-time control** and **meta-optimization** framework: it does not primarily optimize task loss directly, but rather regulates how computation and adaptation unfold so the system remains stable and coherent as conditions change.
 
 *LISA* models an agent as a **singularly perturbed dynamical system** with:
 
@@ -329,6 +329,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
