@@ -1,6 +1,6 @@
 # LISA: Latent Invariant Space Adaptation
 
-*The architecture converts static neural inference into a closed-loop, dual-timescale dynamical system that guarantees latent manifold stability under environmental non-stationarity.*
+LISA converts static neural inference into a closed-loop, dual-timescale dynamical system that guarantees latent manifold stability under environmental non-stationarity.
 
 ---
 
@@ -92,7 +92,7 @@ The architecture introduces an **interpretive layer** that treats structural inv
 
 - **Synthetic Dopamine** ($D_t$): An epistemic plasticity gate that modulates the adaptation rate $\epsilon$ by evaluating the signal-to-noise ratio of latent trajectory discrepancies.
 
-- **ERROR-360** (Coherence $\mathcal{C}(t)$): A geometric diagnostic that evaluates the multi-perspective consistency of latent trajectories through frequency analysis, phase-alignment, and oscillatory coupling.
+- **ERROR-360** (Coherence $C(t)$): A geometric diagnostic that evaluates the multi-perspective consistency of latent trajectories through frequency analysis, phase-alignment, and oscillatory coupling.
 
 ---
 
@@ -106,7 +106,7 @@ Where $P$ and $\Gamma$ are positive-definite weighting matrices controlling ener
 
 Energy dissipation ($\dot{V} < 0$) is strictly guaranteed whenever $\|\eta\| > \frac{2 \|P\| d_{max}}{\lambda_{min}(Q)}$, where $d_{max}$ is the bound on unmodeled environmental chaos. This proves the latent trajectory is mathematically trapped within a rigorously bounded geometric envelope. The deployed, modulated structural dynamics are governed by:
 
-$$\dot{\Theta} = -\epsilon_{base} \gamma_t D_t \mathcal{C}(t) \Gamma \phi(z,u)^T P \eta$$
+$$\dot{\Theta} = -\epsilon_{base} \gamma_t D_t C(t) \Gamma \phi(z,u)^T P \eta$$
 
 ---
 
@@ -224,4 +224,3 @@ LISA/
 Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions 
 and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
 ```
-
