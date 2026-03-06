@@ -1,174 +1,120 @@
-# *LISA: *Latent Invariant Space Adaptation**
+# LISA: Latent Invariant Space Adaptation
+
+LISA converts static neural inference into a closed-loop, dual-timescale dynamical system that guarantees latent manifold stability under environmental non-stationarity.
+
+---
 
 ## Overview
 
-**LISA** is a control-theoretic architecture for high-dimensional, non-stationary environments. The *controller* treats inference as a dynamical process and introduces feedback mechanisms that regulate how internal trajectories evolve under uncertainty and distribution shift. In this sense, *LISA* can be viewed as an **inference-time control** and **meta-optimization** framework, looking over optimizing task loss to regulating how computation and adaptation unfold so the system maintains stability and remains coherent as conditions change.
+**LISA** is a control-theoretic architecture designed for high-dimensional, non-stationary environments. In this framework, neural inference is interpreted not as a static feedforward computation but as a trajectory evolving through a high-dimensional latent state space. The latent state $z_t \in \mathbb{R}^n$ denotes the internal representation vector produced by the base model at inference step $t$. LISA regulates the evolution of $z_t$ as a non-autonomous dynamical process, introducing closed-loop feedback mechanisms that enforce stability and structural coherence.
 
-*LISA* models an agent as a **singularly perturbed** dynamical system with:
+Contemporary foundation models typically execute open-loop inference governed by static boundary constraints. Because these architectures lack internal mechanisms to estimate and compensate for latent state momentum induced by environmental dynamics, their structural guarantees routinely degrade under domain drift. The **environment** refers to any external process influencing inference dynamics, including data distribution shifts, interaction loops, physical systems, or simulation dynamics. LISA addresses this by functioning as an **inference-time control and meta-optimization framework**. Operating above the task loss, the system actively probes the environment to synthesize dynamic safety boundaries while continuously warping the latent representation to maintain structural homeostasis.
 
-1. **Fast behavioral dynamics**: what the system does in the present.
-2. **Slow structural dynamics**: how the underlying structure shaping the behavior is perceived and regulated to remain stable under drift.
-
-The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent when inputs, statistics, or regimes shift.
-
-Crucially, it is not a training-time method, but a geometrically structured adaptation of inference and regulation using parallel signal analysis, enabling robust behavior in non-stationary settings.
-
-Moreover, *LISA* uses an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change. Operationally, coherence functions as a trust signal that modulates commitment strength, rather than introducing symbolic reasoning or explicit causal graphs.
+LISA models the agent as a **singularly perturbed dynamical system**. This separation induces a two-timescale dynamical system in which the fast inference dynamics evolve on the operational timescale $t$, while structural adaptation evolves on the slower meta-timescale $\tau = \epsilon t$, where $0 < \epsilon \ll 1$. Biological terminology used herein serves as a functional analogy for formally defined control mechanisms governing latent trajectory regulation.
 
 ---
 
-## Core Idea - Dual Timescales + Manifold Stability
+## Architecture Flow
 
-- **Fast latent state** $z(t)$ evolves continuously under current structure $\Theta(t)$ and input $u(t)$.
-- **Slow structural parameters** $\Theta(t)$ adapt under a small timescale parameter $\epsilon$, derived from (or aligned with) a **Lyapunov-style energy** $V(z,\Theta)$.
+LISA does not replace the base model; it regulates the geometry of the latent trajectory produced during inference. The framework requires read-access to the intermediate latent states $z_t$ and nominal outputs $u_t$ at each step but does not require modification of the underlying weights.
 
-Structural updates are designed to reduce a global energy or tension metric and restore *invariance* or *attraction* of the latent manifold, yielding robustness under distribution drift.
+```
+flowchart TD
+    x[Observation (x_t)] --> BM[Base Model (Read-Access Only)]
+    BM --> z_nom[u_nominal, z_t]
+    z_nom --> LISA[LISA: Closed-Loop Inference Controller]
+    LISA --> UF[u_filtered (Safe, Coherent Action)]
+    UF --> ENV[Environment]
 
-### Interpretive Layer: Meaning as Invariant Coherence
-
-Stability alone does not guarantee rational behavior under non-stationarity. In practice, a system can observe a pattern for a long time and incorrectly treat it as universal. *LISA* therefore treats invariants as monitored hypotheses. **Meaning is defined operationally as the degree to which multiple invariant candidates remain mutually coherent as the latent dynamics evolve.**
-
-Mutual coherence is evaluated geometrically (rather than symbolically) through persistent agreement across dynamical signatures such as frequency structure, oscillatory coupling, phase alignment, temporal consistency, and shared response under perturbation. When coherence is high, the system can commit strongly to the induced structure. When coherence degrades, the system relaxes its commitment without requiring retraining or overwriting parameters, yielding flexible bias alteration rather than permanent fixation.
-
----
-
-## Mathematical Formulation
-
-*LISA* evolves on two explicitly separated timescales $(t,\tau)$.
-
-### 1) Fast State Dynamics (Behavioral Layer)
-
-$$\dot{z} = f(z, u, \Theta)$$
-
-- $z$: fast latent state (behavior, beliefs, internal representation)
-- $u$: external input or control signal
-- $\Theta$: structural parameters (geometry, invariants, slow weights)
-- $f$: vector field for fast dynamics
-
-### 2) Slow Structural Dynamics (Structural Layer)
-
-$$\dot{\Theta} = \epsilon \, g(z, u, \Theta)$$
-
-- $\epsilon>0$: small timescale separation parameter
-- $g$: structural update field (plasticity or adaptation rule)
-
-The small $\epsilon$ enforces **fast reaction, slow adaptation**.
-
-### 3) Invariance + Manifold Error
-
-A common way to express off-manifold deviation is:
-
-$$\eta = z - \Psi(u,\Theta)$$
-
-where $\Psi(u,\Theta)$ estimates the manifold location for input $u$.
-
-### 4) Lyapunov-Driven Structural Update (Canonical Form)
-
-*LISA* derives slow adaptation from a Lyapunov argument so that a composite energy decreases:
-
-$$V_{\text{total}}(z,\Theta)=\frac{1}{2} \eta^T\eta+\frac{1}{2}\mathrm{tr}(\tilde{\Theta}^T\Gamma^{-1}\tilde{\Theta})$$
-
-A canonical Lyapunov-aligned update is:
-
-$$\dot{\Theta} = -\Gamma\,\phi(z,u)\,\eta^T$$
-
-- $\Gamma$: positive-definite adaptation gain
-- $\phi(z,u)$: regressor or features
-- $\eta$: manifold reconstruction error
-
-Under appropriate conditions, this yields boundedness (and often **UUB** in non-ideal settings).
-
-### 5) Invariant Set and Coherence Signal
-
-Let
-
-$$\mathcal{I}(t) = \{I_k(t)\}_{k=1}^K$$
-
-denote a set of latent invariant candidates derived from the dynamics of $z(t)$ and $\Theta(t)$ (e.g., mode-wise manifold deviations, spectral structure of latent trajectories, energy partitions, cross-timescale consistency checks, or other invariant-like signals).
-
-Define a coherence functional:
-
-$$\mathcal{C}(t) \in [0,1]$$
-
-that measures mutual agreement among these invariant signals. Coherence increases when invariant candidates remain compatible across time and frequency (oscillatory structure, phase coupling, persistence), and decreases when they conflict or drift apart. **Coherence collapse is treated as evidence for regime shift, anomaly, or structural mismatch**, even when individual invariants appear locally stable.
+    subgraph LISA_module["LISA Internals (Fast t / Slow τ)"]
+        LISA --> P[1. probers: Reachability & Momentum (BRT)]
+        LISA --> E[2. energy: Meta-Proprioception V(z)]
+        LISA --> CBF[3. cbf: Dynamic Safety Filter h(z)]
+        LISA --> COH[4. coherence: ERROR-360 & Epistemic Gating]
+        LISA --> ADAP[5. adaptation: Slow Manifold Warping (Theta)]
+    end
+```
 
 ---
 
-## Optional Self-Governing Extensions
+## Notation
 
-In highly stochastic environments, always-on adaptation can waste plasticity on noise, while overly slow adaptation can fail under genuine drift. *LISA* optionally adds bounded modulators that regulate **how much** and **when** the slow update runs without changing the underlying Lyapunov direction.
+| Symbol | Definition | Timescale | Role |
+|--------|------------|-----------|------|
+| $z_t \in \mathbb{R}^n$ | Latent state vector | Fast ($t$) | Observed |
+| $u_t$ | Nominal output or action vector | Fast ($t$) | Observed |
+| $\Theta$ | Slow structural parameters | Slow ($\tau$) | Adapted |
+| $\eta$ | Manifold reconstruction error | - | Diagnostic |
+| $V$ | Lyapunov energy functional | - | Diagnostic |
+| $Z_{crit}$* | Safe latent region boundary | - | Invariant |
+| $\lambda$ | Momentum coefficient | - | Parameter |
+| $\Psi(u, \Theta)$ | Slow manifold reconstruction mapping | Slow ($\tau$) | Model |
 
-### A) Perceptual Gravity (State-Dependent Timescale Dilation)
-
-A bounded "stress gain" increases adaptation intensity when system energy rises:
-
-$$\gamma_t = 1+\alpha\tanh(\beta\,\mathcal{S}(t)), \quad \gamma_t \ge 1$$
-
-$$\epsilon(t)=\epsilon_{\text{base}}\gamma_t$$
-
-Typical choices: $\mathcal{S}(t)=V_{\text{total}}(t)$ or $\mathcal{S}(t)=\|\eta(t)\|^2$.
-
-### B) Synthetic Dopamine (Epistemic Plasticity Gating)
-
-Synthetic dopamine is a directional, epistemic plasticity gate that governs when learning is legitimate, rather than serving as a reward signal.
-
-A bounded gate suppresses learning under likely noise and enables learning under reliable novelty that coherently advances the system toward its internal objective boundary:
-
-$$\mathcal{D}_t = \sigma\!\left( \frac{\delta(t)}{\Sigma(t)+\xi} - \tau_{\text{th}} \right), \qquad \mathcal{D}_t \in [0,1]$$
-
-- $\delta(t)$: surprise proxy (e.g., $\|\eta(t)\|$, prediction residual, or manifold deviation)
-- $\Sigma(t)$: uncertainty proxy (running variance, learned uncertainty head, etc.)
-- $\xi > 0$: numerical stabilizer
-- $\tau_{\text{th}}$: novelty threshold
-
-This gate establishes eligibility for adaptation, suppressing noise-driven plasticity while permitting learning under structured, reliable surprise.
-
-Crucially, synthetic dopamine is interpreted not as novelty alone, but as a carrier of purpose: it activates most strongly when multiple, independently ambiguous internal factors (e.g., features, residual components, predictive cues) converge directionally toward the same objective trajectory, and when such convergence persists over time as causal progress.
-
-### C) ERROR-360 (Multi-Perspective Geometric Diagnostics)
-
-**ERROR-360** is a fast diagnostic layer that monitors the latent dynamics from multiple independent geometric perspectives. Instead of treating error as a single scalar, it exposes structured deviation signals that detect drift, oscillatory inharmony, instability, and incoherence early.
-
-Let ERROR-360 produce a diagnostic vector:
-
-$$e(t) = [e_1(t), \ldots, e_M(t)]$$
-
-from which coherence can be derived:
-
-$$\mathcal{C}(t) = h(e(t)) \in [0,1]$$
-
-This prevents uncontrolled drift while allowing *LISA*'s slow dynamics to continue consolidating stable latent structure. In effect, ERROR-360 guards the trajectory while *LISA* shapes the structure.
-
-### Unified Modulated Slow Law (with Coherence)
-
-The self-governing slow update retains the same stability-driven direction, with modulation applied only to when and how strongly adaptation occurs:
-
-$$\dot{\Theta} = - \epsilon_{\text{base}} \; \gamma_t \; \mathcal{D}_t \; \mathcal{C}(t) \; \Gamma \; \phi(z,u) \; \eta^{\mathsf{T}}$$
-
-- $\gamma_t$: intensity or timescale modulation (perceptual gravity)
-- $\mathcal{D}_t$: epistemic validity and directional coherence gate (synthetic dopamine)
-- $\mathcal{C}(t)$: coherence-based trust modulation (invariant compatibility or ERROR-360 aggregation)
-
-**Interpretation**: the update direction remains Lyapunov-aligned and stability-preserving, while the gates schedule adaptation legitimacy and trust. When coherence is high, the system can commit strongly. When coherence degrades, the system relaxes bias and avoids causal fixation, enabling flexible bias alteration under abrupt change.
+*Note: $Z_{crit}$ is empirically estimated using Backward Reachable Tube (BRT) probes.
 
 ---
 
-## Key Features
+## Concept Summary
 
-- **Dual-timescale separation**: explicit $\epsilon$ enables singular perturbation analysis and cleanly separates fast behavior from slow structure.
-- **Manifold-stable adaptation**: updates aim to maintain (or restore) an attracting invariant manifold under drift.
-- **Lyapunov-driven learning**: structural updates are aligned with energy decrease and boundedness, not heuristic learning rates.
-- **Continuous-time operation**: conceptually no epochs or batches required.
-- **(Optional) Self-governance**: Perceptual Gravity and Synthetic Dopamine provide bounded gain scheduling to avoid learning-on-noise while responding to genuine regime change.
-- **Flexible bias alteration**: strong latent structure is permitted, but its influence is continuously modulated by coherence, preventing permanent fixation while preserving adaptive meaning.
+LISA transforms neural inference into a feedback-regulated dynamical process. The base model produces a latent trajectory $z_t$. LISA monitors this trajectory, estimates environmental momentum, enforces safety via control barrier functions, and slowly adapts the latent coordinate system to maintain invariant structure. The resulting system couples fast inference dynamics with slow structural adaptation under provable boundedness guarantees.
+
+---
+
+## Core Mechanics: The Four Pillars of Inference-Time Control
+
+### I. Online Reachability Estimation (Active System Identification)
+
+To operate without the assumption of a fixed latent topology, the system utilizes **active system identification**. Prior to macro-execution, or upon detecting a regime shift, the controller executes an empirical micro-probe to map the boundary of the environment's **Backward Reachable Tube (BRT)**. By observing the passive evolution of latent state velocities after control shutdown, the architecture calculates the empirical supremum of environmental momentum via a multidimensional norm bound:
+
+$$\Delta z_{coast}^{max} = \sup_{\tau \ge t_{off}} \left\| \int_{t_{off}}^\tau \dot{z}(\xi)d\xi \right\|$$
+
+The latent velocity $\dot{z}_t$ is estimated via finite differences across inference steps, such that $\dot{z}_t \approx (z_t - z_{t-1}) / \Delta t$.
+
+### II. Inference-Time Regulation and Architectural Reflex Arcs
+
+Utilizing the probed supremum, the controller extracts $\lambda$ to synthesize a **Velocity-Aware Control Barrier Function (CBF)**. This formulation acts as a first-order empirical bound on the reachable latent manifold:
+
+$$h(z_t) = Z_{crit} - \|z_t + \lambda \dot{z}_t\| \ge 0$$
+
+The **Architectural Reflex Arc** is an event-triggered control mechanism that intervenes when latent trajectories approach unsafe regions, enforcing a hard optimal control projection:
+
+$$u_t = \arg\min_u \|u - u_{nominal}\| \quad \text{subject to} \quad h(z_t) \ge 0$$
+
+### III. Latent-Space Meta-Proprioception (Manifold Stability)
+
+**Latent-Space Meta-Proprioception** is an intrinsic monitoring mechanism that evaluates the geometric integrity of latent trajectories through low-overhead proxy energy functionals $V(z, \Theta)$. While the reflex arc operates on the fast timescale $t$, the architecture simultaneously executes slow parametric updates $\Theta$ on the timescale $\tau$. Rather than directly updating core network weights, the architecture structurally adapts the latent coordinate frame to minimize the manifold reconstruction error $\eta = z - \Psi(u, \Theta)$ via a Lyapunov-aligned structural update.
+
+### IV. The Interpretive Layer (Coherence and Epistemic Gating)
+
+The architecture introduces an **interpretive layer** that treats structural invariants as provisional hypotheses that must be continuously validated through trajectory coherence. This layer derives operational meaning from mutual geometric coherence over time via autonomous, bounded modulators:
+
+- **Perceptual Gravity** ($\gamma_t$): A stress-amplified adaptation gain derived from the Lyapunov energy $V(z)$. It increases structural plasticity monotonically with latent trajectory instability.
+
+- **Synthetic Dopamine** ($D_t$): An epistemic plasticity gate that modulates the adaptation rate $\epsilon$ by evaluating the signal-to-noise ratio of latent trajectory discrepancies.
+
+- **ERROR-360** (Coherence $\mathcal{C}(t)$): A geometric diagnostic that evaluates the multi-perspective consistency of latent trajectories through frequency analysis, phase-alignment, and oscillatory coupling.
+
+---
+
+## Theorem of Latent Manifold Stability (UUB Guarantee)
+
+To formally guarantee that LISA prevents catastrophic drift, the architecture relies on **Lyapunov's Direct Method** to prove **Uniform Ultimate Boundedness (UUB)**. Let $\eta(t)$ represent the manifold deviation and $\tilde{\Theta}(t) = \Theta(t) - \Theta^*$ represent the structural parameter error. We define the composite Lyapunov energy functional:
+
+$$V(\eta, \tilde{\Theta}) = \frac{1}{2}\eta^T P \eta + \frac{1}{2}\mathrm{tr}(\tilde{\Theta}^T \Gamma^{-1} \tilde{\Theta})$$
+
+Where $P$ and $\Gamma$ are positive-definite weighting matrices controlling energy scaling. Assuming fast inference error dynamics $\dot{\eta} = A \eta + \phi(z,u) \tilde{\Theta} + d(t)$ where $A$ is Hurwitz such that $A^T P + P A = -Q$ for some $Q > 0$ (defining the Lyapunov decay rate), LISA executes the unmodulated adaptation law $\dot{\Theta} = - \Gamma \phi(z,u)^T P \eta$.
+
+Energy dissipation ($\dot{V} < 0$) is strictly guaranteed whenever $\|\eta\| > \frac{2 \|P\| d_{max}}{\lambda_{min}(Q)}$, where $d_{max}$ is the bound on unmodeled environmental chaos. This proves the latent trajectory is mathematically trapped within a rigorously bounded geometric envelope. The deployed, modulated structural dynamics are governed by:
+
+$$\dot{\Theta} = -\epsilon_{base} \gamma_t D_t \mathcal{C}(t) \Gamma \phi(z,u)^T P \eta$$
 
 ---
 
 ## Installation
 
 ```bash
-git clone https://github.com/vishal-1344/*LISA*.git
-cd *LISA*
+git clone https://github.com/vishal-1344/LISA.git
+cd LISA
 pip install -e .
 ```
 
@@ -178,186 +124,103 @@ or
 pip install -r requirements.txt
 ```
 
-Then:
+---
 
-```python
-import *LISA*
-```
+## Quickstart: Numerically Stable Toy Dual-Timescale System
 
-## Quickstart: Toy Dual-Timescale System (with Optional Modulators)
-
-Create `examples/quickstart_toy_system.py`:
+This script illustrates the core singular perturbation mechanics of LISA. This toy example uses a 2D latent state and linear dynamics for demonstration purposes.
 
 ```python
 """
-Quickstart: *LISA*-style dual-timescale dynamics on a toy system.
-
-Illustrates:
-1) fast state dynamics:     dz/dt = f(z, u, Theta)
-2) slow structural dynamics dTheta/dt = epsilon * g(z, u, Theta)
-3) Lyapunov-like energy     V(z, Theta)
-4) optional modulators:     gamma_t (Perceptual Gravity), D_t (Synthetic Dopamine)
+Quickstart: Numerically stable LISA dual-timescale dynamics.
+Features:
+1) Fast/Slow Separation (z: fast, Theta: slow)
+2) Perceptual Gravity (gamma_t): Stress-Amplified Gain
+3) Synthetic Dopamine (D_t): Epistemic Plasticity Gate
 """
-
 from __future__ import annotations
 import numpy as np
 
-
 def f(z: np.ndarray, u: np.ndarray, Theta: np.ndarray) -> np.ndarray:
-    # Simple linear fast dynamics: z_dot = A z + B u, where A depends on Theta
+    # dz/dt = A(Theta)z + Bu
     A = np.array([[Theta[0], 0.0], [0.0, Theta[1]]])
     B = np.eye(2)
     return A @ z + B @ u
 
-
 def g(z: np.ndarray, u: np.ndarray, Theta: np.ndarray) -> np.ndarray:
-    # Illustrative structural drift target: move Theta toward |z| statistics
+    # dTheta/dt target: Alignment with absolute latent magnitudes
     target = np.abs(z)
     return target - Theta
 
-
 def V(z: np.ndarray, Theta: np.ndarray) -> float:
-    # Example Lyapunov-like energy: mismatch between Theta and |z|
+    # Lyapunov energy: Geometric mismatch between state and structure
     return 0.5 * float(np.linalg.norm(np.abs(z) - Theta) ** 2)
 
-
-def perceptual_gravity(S: float, alpha: float = 1.0, beta: float = 2.0) -> float:
-    # gamma_t = 1 + alpha * tanh(beta * S), bounded >= 1
-    return 1.0 + alpha * float(np.tanh(beta * S))
-
-
-def synthetic_dopamine(delta: float, Sigma: float, xi: float = 1e-6, tau_th: float = 0.5) -> float:
-    # D_t = sigmoid(delta/(Sigma+xi) - tau_th), bounded in [0,1]
-    x = delta / (Sigma + xi) - tau_th
-    return 1.0 / (1.0 + float(np.exp(-x)))
-
-
 def main() -> None:
-    dt = 0.01
-    T = 5.0
+    dt, T = 0.01, 5.0
     steps = int(T / dt)
-
-    z = np.array([1.0, -0.5], dtype=float)
-    Theta = np.array([0.0, 0.0], dtype=float)
-    u = np.array([0.0, 0.0], dtype=float)
-
-    epsilon_base = 0.05
-
+    z, Theta, u = np.array([1.0, -0.5]), np.array([0.0, 0.0]), np.array([0.0, 0.0])
+    epsilon_base, Sigma, beta_ema = 0.05, 1.0, 0.95
     energies = []
-    residuals = []  # for a crude uncertainty proxy
 
-    for _ in range(steps):
-        # fast dynamics
+    for step in range(steps):
+        # Fast behavioral dynamics (Operational timescale t)
         z = z + dt * f(z, u, Theta)
 
-        # compute energy + proxies
+        # Meta-proprioceptive stability audit (Energy V)
         E = V(z, Theta)
         energies.append(E)
+        delta = float(np.linalg.norm(np.abs(z) - Theta)) # Manifold deviation (error)
 
-        delta = float(np.linalg.norm(np.abs(z) - Theta))  # "surprise" proxy
-        residuals.append(delta)
-        Sigma = float(np.var(residuals[-200:])) if len(residuals) >= 10 else 1.0  # crude uncertainty proxy
+        # Epistemic signal-to-noise estimation (EMA)
+        Sigma = beta_ema * Sigma + (1 - beta_ema) * (delta ** 2)
 
-        # optional modulators
-        gamma_t = perceptual_gravity(S=E, alpha=1.0, beta=2.0)
-        D_t = synthetic_dopamine(delta=delta, Sigma=Sigma, tau_th=0.5)
+        # Modulators: gamma (stress-gain) and D (plasticity gate)
+        gamma_t = 1.0 + 1.0 * float(np.tanh(2.0 * E))
+        D_t = 1.0 / (1.0 + float(np.exp(-(delta / (Sigma + 1e-6) - 0.5))))
 
-        epsilon = epsilon_base * gamma_t
-
-        # slow dynamics (modulated)
+        # Slow structural dynamics (Meta-timescale tau)
+        epsilon = epsilon_base * min(gamma_t, 10.0)
         Theta = Theta + dt * (epsilon * D_t) * g(z, u, Theta)
 
-    print("Initial energy:", energies[0])
-    print("Final energy:", energies[-1])
-    print("First 10 energies:", energies[:10])
+        if step % 100 == 0:
+            print(f"Step {step:4}: V={E:.4f} | gamma={gamma_t:.2f} | D={D_t:.2f}")
 
+    print(f"\nFinal manifold error: {energies[-1]:.4f}")
+    
+    # Optional Visualization:
+    # import matplotlib.pyplot as plt
+    # plt.plot(energies)
+    # plt.xlabel("Time step")
+    # plt.ylabel("Lyapunov Energy V(z, Theta)")
+    # plt.title("Meta-Proprioceptive Energy Decay")
+    # plt.show()
 
 if __name__ == "__main__":
     main()
 ```
 
-Run:
-
-```bash
-python examples/quickstart_toy_system.py
-```
-
-In a real *LISA* deployment, $f$, $g$, $\Psi$, $V$, $\mathcal{I}(t)$, and $\mathcal{C}(t)$ are problem-specific. The pattern remains: explicit fast-slow dynamics, manifold error, stability-aligned adaptation, and a coherence-modulated legitimacy schedule that prevents drift while preserving meaningful structure.
+---
 
 ## Repository Structure
 
 ```
-*LISA*/
+LISA/
 ├── __init__.py
-├── dynamics.py      # fast dynamics f(z, u, Theta)
-├── adaptation.py    # slow updates g(z, u, Theta) (+ modulators)
-├── energy.py        # Lyapunov / energy functions V(z, Theta)
-├── coherence.py     # invariant coherence C(t) from I(t) / ERROR-360 diagnostics
-└── simulation.py    # utilities for simulating fast-slow systems
-
-examples/
-└── quickstart_toy_system.py
-
-experiments/         # scripts, configs, logs
-tests/
-├── test_energy.py
-└── test_dual_timescale.py
-
-pyproject.toml
-LICENSE
-README.md
+├── probers/         # Active System Identification & BRT reachability estimation
+├── cbf/             # Dynamic Control Barrier Function synthesis & optimal projection
+├── adaptation.py    # Slow structural updates g(z, u, Theta) & Lyapunov dynamics
+├── dynamics.py      # Fast behavioral dynamics f(z, u, Theta)
+├── energy.py        # Meta-proprioceptive proxy energy functionals V(z, Theta)
+├── coherence.py     # ERROR-360 diagnostics, Perceptual Gravity, Synthetic Dopamine
+└── simulation.py    # ODE integrators and singular perturbation utilities
 ```
 
-## Testing
-
-```bash
-pytest
-```
-
-Recommended tests include:
-
-- Verify $V$ decreases (or remains bounded) on simple systems.
-- Check numerical stability under small perturbations in $z$, $u$, $\Theta$.
-- Validate that $\epsilon_{\text{base}}$ controls timescale separation, and that $\gamma_t$, $\mathcal{D}_t$, and $\mathcal{C}(t)$ remain bounded.
-- Stress-test regime shifts: confirm coherence collapse precedes unstable adaptation and that bias is relaxed rather than fixated.
+---
 
 ## Citation
 
-If you use *LISA* or build on this framework, please cite the technical report:
-
 ```
-Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
-(with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
+Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions 
+and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
