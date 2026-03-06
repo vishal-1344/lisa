@@ -11,7 +11,7 @@
 
 The central idea is **manifold stability**: maintain a low-dimensional *attracting* latent manifold embedded in a high-dimensional state space so that inference trajectories remain coherent when inputs, statistics, or regimes shift.
 
-Crucially, it is not a training-time method, but a geometrically structured adaptation of inference and regulation using parallel signal processing math, enabling robust behavior in non-stationary settings.
+Crucially, it is not a training-time method, but a geometrically structured adaptation of inference and regulation using parallel signal analysis, enabling robust behavior in non-stationary settings.
 
 Moreover, *LISA* uses an **interpretive layer** that treats invariants as provisional hypotheses and derives meaning from their mutual geometric coherence over time. This layer prevents **causal fixation**: repeated regularities are not automatically treated as permanent truths. Instead, the influence of learned structure is continuously modulated by coherence signals, enabling flexible bias alteration under abrupt regime change. Operationally, coherence functions as a trust signal that modulates commitment strength, rather than introducing symbolic reasoning or explicit causal graphs.
 
@@ -329,6 +329,7 @@ If you use *LISA* or build on this framework, please cite the technical report:
 Latent Invariant Space Adaptation (*LISA*): A Dual-Timescale Framework for Robust Adaptive Control 
 (with self-governing modulators and coherence-based interpretation), Technical Report, 2025-2026.
 ```
+
 
 
 
