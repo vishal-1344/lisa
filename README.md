@@ -6,7 +6,7 @@
 
 ## 1. Overview
 
-**Latent Invariant Space Adaptation (LISA)** is a symbiotic control architecture designed for high-dimensional, non-stationary environments. The framework defines neural inference as a trajectory evolving through a high-dimensional latent state space $z_k \in \mathbb{R}^n$. By integrating fast-scale geometric auditing with event-triggered discrete-time control barrier projections, LISA learns the embodied perception of evolving invariants. This framework transforms foundation models into homeostatic dynamical systems, enabling autonomous stabilization in high-stakes environments where state transitions are irreversible.
+**Latent Invariant Space Adaptation** is a symbiotic control architecture designed for high-dimensional, non-stationary environments. The framework defines neural inference as a trajectory evolving through a high-dimensional latent state space $z_k \in \mathbb{R}^n$. By integrating fast-scale geometric auditing with event-triggered discrete-time control barrier projections, LISA learns the embodied perception of evolving invariants. This framework transforms foundation models into homeostatic dynamical systems, enabling autonomous stabilization in high-stakes environments where state transitions are irreversible.
 
 The architecture treats the base model and the regulatory layer as a single, co-dependent dynamical system. Operating entirely above the task loss, LISA executes fast-scale geometric audits via Koopman embeddings to quantify structural momentum. It continuously regulates the latent representation through low-rank interventions to maintain geometric homeostasis prior to action execution.
 
@@ -193,3 +193,4 @@ While derived strictly from nonlinear sampled-data control theory, LISA's archit
 Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions 
 and Manifold Stability via Active Environmental Probing, Technical Report, 2026.
 ```
+
