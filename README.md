@@ -4,7 +4,7 @@
 
 ## Overview
 
-The ***Latent Invariant Space Adaptation or *LISA*** is a control-theoretic architecture designed for high-dimensional, non-stationary environments. The framework defines neural inference as a trajectory evolving through a high-dimensional latent state space $z_t \in \mathbb{R}^n$. By integrating closed-loop feedback mechanisms, LISA regulates this dynamical process to ensure structural coherence and systemic stability over the course of the trajectory.
+The **Latent Invariant Space Adaptation or *LISA*** is a control-theoretic architecture designed for high-dimensional, non-stationary environments. The framework defines neural inference as a trajectory evolving through a high-dimensional latent state space $z_t \in \mathbb{R}^n$. By integrating closed-loop feedback mechanisms, LISA regulates this dynamical process to ensure structural coherence and systemic stability over the course of the trajectory.
 
 The framework functions as an inference-time control and meta-optimization layer. Operating above the task loss, the system actively probes the environment to synthesize dynamic safety boundaries while continuously warping the latent representation to maintain structural homeostasis. The environment encompasses any process influencing inference dynamics, including distribution shifts, interaction loops, and simulation environments.
 
@@ -193,6 +193,7 @@ LISA/
 ## Citation
 
 > Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
+
 
 
 
