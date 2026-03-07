@@ -58,7 +58,7 @@ LISA regulates neural inference as a feedback-governed process. It monitors the 
 
 ---
 
-## Core Mechanics: The Four Pillars of Inference-Time Control
+## Core:
 
 ### I. Online Reachability Estimation (Active System Identification)
 
@@ -193,6 +193,7 @@ LISA/
 ## Citation
 
 > Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
+
 
 
 
