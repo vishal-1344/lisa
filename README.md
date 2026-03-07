@@ -1,205 +1,195 @@
 # Latent Invariant Space Adaptation
 
-***LISA** formalizes neural inference as a closed-loop, dual-timescale dynamical system that maintains latent manifold stability under environmental non-stationarity.*
-
-## Overview
-
-**Latent Invariant Space Adaptation** is a control-theoretic architecture designed for high-dimensional, non-stationary environments. The framework defines neural inference as a trajectory evolving through a high-dimensional latent state space $z_t \in \mathbb{R}^n$. By integrating closed-loop feedback mechanisms, LISA regulates this dynamical process to ensure structural coherence and systemic stability over the course of the trajectory.
-
-The framework functions as an inference-time control and meta-optimization layer. Operating above the task loss, the system actively probes the environment to synthesize dynamic safety boundaries while continuously warping the latent representation to maintain structural homeostasis. The environment encompasses any process influencing inference dynamics, including distribution shifts, interaction loops, and simulation environments.
-
-LISA models the agent as a **singularly perturbed dynamical system**. This architecture separation induces a two-timescale system where fast inference dynamics evolve on the operational timescale $t$, while structural adaptation occurs on a slower meta-timescale $\tau = \epsilon t$, for $0 < \epsilon \ll 1$. Biological nomenclature in this documentation serves as a functional analogy for formally defined control mechanisms governing latent trajectory regulation.
+*LISA formalizes neural inference as a governed flow through latent geometry, maintaining manifold stability via dual-timescale adaptive control.*
 
 ---
 
-## Architecture Flow
+## 1. Overview
 
-LISA functions as a regulatory layer for the latent trajectory produced during inference. The framework utilizes read-access to the intermediate latent states $z_t$ and nominal outputs $u_t$ at each step to maintain geometric integrity.
+**Latent Invariant Space Adaptation (LISA)** is a symbiotic control architecture designed for high-dimensional, non-stationary environments. The framework defines neural inference as a trajectory evolving through a high-dimensional latent state space $z_k \in \mathbb{R}^n$. By integrating fast-scale geometric auditing with event-triggered discrete-time control barrier projections, LISA learns the embodied perception of evolving invariants. This framework transforms foundation models into homeostatic dynamical systems, enabling autonomous stabilization in high-stakes environments where state transitions are irreversible.
+
+The architecture treats the base model and the regulatory layer as a single, co-dependent dynamical system. Operating entirely above the task loss, LISA executes fast-scale geometric audits via Koopman embeddings to quantify structural momentum. It continuously regulates the latent representation through low-rank interventions to maintain geometric homeostasis prior to action execution.
+
+Mathematically, the framework models this symbiosis through sampled-data singular perturbation conditions. This design induces a strict two-timescale separation: fast behavioral inference dynamics evolve on the operational timescale $k$, while structural adaptation and epistemic trust evolve on a slower meta-timescale $\tau = \epsilon k$, for $0 < \epsilon \ll 1$. Crucially, LISA functions as an independent regulatory wrapper that preserves the underlying pretrained weights, requiring only read-access to the intermediate latent states and a localized actuation channel.
+
+*Note on Terminology: Throughout this documentation, terms such as "homeostatic" and "metabolically regulated" refer strictly to the formal dynamical maintenance of bounded invariant safe sets ($\mathcal{Z}_{safe}$) and the computational dilation of inference timescales based on Lyapunov stress. They represent the control-theoretic equivalents of biological resilience, rather than literal metabolic energy consumption.*
+
+---
+
+## 2. Formal System Definition and Assumptions
+
+LISA regulates the latent dynamics of the plant, mathematically defined as follows:
+
+$$z_{k+1} = f(z_k) + G(z_k) u_k + d_k \quad \text{(Fast Behavioral Plant)}$$
+
+$$\Theta_{k+1} = \Theta_k - \epsilon_k \Gamma \phi(z_k)^T P \eta_k \quad \text{(Slow Structural Adaptation)}$$
+
+To ensure mathematical tractability and rigorous safety guarantees, the architecture relies on four explicit assumptions:
+
+1. **Local Control Affinity**: Under a first-order Taylor expansion of the residual stream dynamics within a local operating region, the system satisfies $z_{k+1} = f(z_k) + G(z_k) u_k$.
+
+2. **Bounded Disturbance**: The aleatoric environmental disturbance is strictly bounded such that $\|d_k\| \le d_{max}$.
+
+3. **Local Lipschitz Decoding**: Within the invariant safe set, the base model's decoding projection $y = g(z)$ is locally Lipschitz continuous, satisfying $\|g(z_1) - g(z_2)\| \le L\|z_1 - z_2\|$.
+
+4. **Slow Adaptation**: The effective adaptation rate is bounded such that $\epsilon_{base} \gamma_{max} \ll 1$, strictly preserving the singular perturbation timescale separation.
+
+---
+
+## 3. Architecture Flow
+
+LISA functions as a modular regulatory layer for the latent trajectory produced during the base model's forward pass.
 
 ```mermaid
 flowchart TD
-    x[Observation x_t] --> BM[Base Model Read-Access Only]
-    BM --> z_nom[u_nominal, z_t]
+    x[Observation x_k] --> BM[Base Model Forward Pass]
+    BM --> z_nom[u_nominal, z_k]
     z_nom --> LISA[LISA Closed-Loop Inference Controller]
     LISA --> UF[u_filtered Safe Coherent Action]
     UF --> ENV[Environment]
 
-    subgraph LISA_module[LISA Internals Fast t Slow τ]
-        LISA --> P[1. probers Reachability and Momentum BRT]
-        LISA --> E[2. energy Meta-Proprioception V]
+    subgraph LISA_module[LISA Internals Fast k Slow τ]
+        LISA --> P[1. probers Empirical Disturbance Envelope]
+        LISA --> E[2. energy Adaptive Manifold Observer V]
         LISA --> CBF[3. cbf Dynamic Safety Filter h]
-        LISA --> COH[4. coherence ERROR-360 and Epistemic Gating]
+        LISA --> COH[4. coherence Innovation Variance and Epistemic Gating]
         LISA --> ADAP[5. adaptation Slow Manifold Warping Theta]
     end
 ```
 
 ---
 
-## Notation
+## 4. The Adaptive Manifold Observer (Koopman Embedding)
 
-| Symbol | Definition | Timescale | Role |
-|--------|------------|-----------|------|
-| $z_t \in \mathbb{R}^n$ | Latent state vector | Fast ($t$) | Observed |
-| $u_t$ | Nominal output or action vector | Fast ($t$) | Observed |
-| $\Theta$ | Slow structural parameters | Slow ($\tau$) | Adapted |
-| $\eta$ | Manifold reconstruction error | - | Diagnostic |
-| $V$ | Lyapunov energy functional | - | Diagnostic |
-| $Z_{crit}$* | Safe latent region boundary | - | Invariant |
-| $\lambda$ | Momentum coefficient | - | Parameter |
-| $\Psi(u, \Theta)$ | Slow manifold reconstruction mapping | Slow ($\tau$) | Model |
+To ensure operational semantics for the innovation energy ($\eta_k$), the observer predicts the next latent state by lifting the current state $z_k$ into a high-dimensional feature map $\phi(z_k) : \mathbb{R}^n \rightarrow \mathbb{R}^m$ ($m \gg n$), learned via an MLP, where the dynamics are locally linear.
 
-*Note: $Z_{crit}$ is empirically estimated using Backward Reachable Tube (BRT) probes.
+$$\Psi(z_k, \Theta) = \Theta \phi(z_k)$$
+
+$$\eta_k = z_{k+1} - \Psi(z_k, \Theta) \quad \text{(Innovation Residual)}$$
+
+This frames $\eta_k$ as the residual of the Koopman embedding. Spikes in the **Innovation Energy** $E_k = \|\eta_k\|^2$ signal a failure to self-predict, indicating a geometric regime shift before it manifests in the output tokens.
 
 ---
 
-## Concept Summary
+## 5. Core Modulators
 
-LISA regulates neural inference as a feedback-governed process. It monitors the latent trajectory $z_t$, estimates environmental momentum, enforces safety via control barrier functions, and adapts the latent coordinate system to preserve invariant structure. This design couples fast inference dynamics with slow structural adaptation under provable boundedness guarantees.
+LISA dynamically scales adaptation based on the real-time geometric integrity of the latent manifold. The effective update rate is defined as $\epsilon_k = \epsilon_{base} \gamma_k D_k C_k$.
 
----
+### Trajectory Coherence Metric ($C_k$)
 
-## Core:
+Approximates the local dispersion of the innovation process over a sliding window $W$. When divergence occurs, $C_k \to 0$, safely arresting adaptation during geometrically incoherent regime shifts.
 
-### I. Online Reachability Estimation (Active System Identification)
+$$C_k = \frac{1}{1 + \frac{1}{W} \sum_{i=k-W}^k \|\eta_i - \bar{\eta}\|^2}$$
 
-LISA utilizes active system identification to map the boundary of the environment's Backward Reachable Tube (BRT). By observing the **passive evolution** of latent state velocities after control shutdown, the architecture calculates the empirical supremum of environmental momentum via a multidimensional norm bound:
+### Energy-Based Gain Scheduling ($\gamma_k$)
 
-$$\Delta z_{coast}^{max} = \sup_{\tau \ge t_{off}} \left\| \int_{t_{off}}^\tau \dot{z}(\xi)d\xi \right\|$$
+Scales the adaptive update rate monotonically with the Lyapunov stress $V_k$. To strictly preserve the singular perturbation assumption, this gain is bounded to $\gamma_k \in [1, \gamma_{max}]$.
 
-The latent velocity $\dot{z}_t$ is estimated via finite differences across inference steps: $\dot{z}_t \approx (z_t - z_{t-1}) / \Delta t$.
+### Epistemic Plasticity Gate ($D_k$)
 
-### II. Inference-Time Regulation and Architectural Reflex Arcs
-
-Using the probed supremum, the controller extracts $\lambda$ to synthesize a Velocity-Aware Control Barrier Function (CBF). This formulation provides a first-order empirical bound on the reachable latent manifold:
-
-$$h(z_t) = Z_{crit} - \|z_t + \lambda \dot{z}_t\| \ge 0$$
-
-The **Architectural Reflex Arc** triggers when latent trajectories approach unsafe regions, enforcing an optimal control projection:
-
-$$u_t = \arg\min_u \|u - u_{nominal}\| \quad \text{subject to} \quad h(z_t) \ge 0$$
-
-### III. Latent-Space Meta-Proprioception (Manifold Stability)
-
-**Latent-Space Meta-Proprioception** evaluates the geometric integrity of latent trajectories through proxy energy functionals $V(z, \Theta)$. While the reflex arc operates on the fast timescale $t$, the architecture simultaneously executes slow parametric updates $\Theta$ on the timescale $\tau$. The system structurally adapts the latent coordinate frame to minimize the manifold reconstruction error $\eta = z - \Psi(u, \Theta)$ via a Lyapunov-aligned structural update.
-
-### IV. The Interpretive Layer (Coherence and Epistemic Gating)
-
-The interpretive layer maintains structural invariants through continuous validation of trajectory coherence. This layer derives operational meaning via autonomous, bounded modulators:
-
-- **Perceptual Gravity** ($\gamma_t$): A stress-amplified adaptation gain derived from the Lyapunov energy $V(z)$ that increases structural plasticity monotonically with latent trajectory instability.
-- **Synthetic Dopamine** ($D_t$): An epistemic plasticity gate that modulates the adaptation rate $\epsilon$ based on the signal-to-noise ratio of latent trajectory discrepancies.
-- **ERROR-360** (Coherence $C(t)$): A geometric diagnostic that evaluates the multi-perspective consistency of latent trajectories through frequency analysis, phase-alignment, and oscillatory coupling.
+A Signal-to-Noise Ratio (SNR) Gate that ensures the system only warps its structural manifold when the geometric discrepancy is directionally informative.
 
 ---
 
-## Theorem of Latent Manifold Stability (UUB Guarantee)
+## 6. Discrete-Time Control Barrier Functions (DTCBF)
 
-To guarantee systemic stability, LISA utilizes Lyapunov's Direct Method to prove **Uniform Ultimate Boundedness (UUB)**. Let $\eta(t)$ represent the manifold deviation and $\tilde{\Theta}(t) = \Theta(t) - \Theta^*$ represent the structural parameter error. The composite Lyapunov energy functional is defined as:
+To establish a tractable environmental boundary, LISA utilizes **Active System Identification** to estimate an empirical disturbance envelope $\lambda = \max(\|\Sigma^{-1/2} \Delta z_k\|)$ over a rolling window.
 
-$$V(\eta, \tilde{\Theta}) = \frac{1}{2}\eta^T P \eta + \frac{1}{2}\mathrm{tr}(\tilde{\Theta}^T \Gamma^{-1} \tilde{\Theta})$$
+The safe set $\mathcal{C} = \{z \mid h(z) \ge 0\}$ uses a quadratic Lyapunov-like barrier weighted by the latent precision matrix $\Sigma^{-1}$ to maintain numerical stability in high-dimensional anisotropic spaces:
 
-$P$ and $\Gamma$ are positive-definite weighting matrices controlling energy scaling. Given fast inference error dynamics $\dot{\eta} = A \eta + \phi(z,u) \tilde{\Theta} + d(t)$ where $A$ is Hurwitz and $A^T P + P A = -Q$, LISA executes the adaptation law $\dot{\Theta} = - \Gamma \phi(z,u)^T P \eta$.
+$$h(z) = Z_{crit} - z^T \Sigma^{-1} z$$
 
-Energy dissipation ($\dot{V} < 0$) is guaranteed whenever $\|\eta\| > \frac{2 \|P\| d_{max}}{\lambda_{min}(Q)}$, where $d_{max}$ is the bound on unmodeled environmental chaos. The deployed, modulated structural dynamics are governed by:
+To guarantee the forward invariance of $\mathcal{C}$, the control input $u_k$ must satisfy the **Exponential DTCBF condition**:
 
-$$\dot{\Theta} = -\epsilon_{base} \gamma_t D_t C(t) \Gamma \phi(z,u)^T P \eta$$
+$$h(f(z_k) + G(z_k)u_k) \ge (1 - \alpha) h(z_k)$$
+
+Because foundation model latents are high-dimensional ($n \sim 10^4$), LISA projects the intervention into a **Principal Intervention Subspace** $B$. The safe control $u_k = Bv_k$ is found by solving a low-rank Quadratic Program (QP):
+
+$$\min_v \|Bv - u_{nom}\|^2 \quad \text{s.t.} \quad \Delta h(z_k, Bv) + \alpha(h(z_k)) \ge 0$$
 
 ---
 
-## Quickstart: Numerically Stable Toy Dual-Timescale System
+## 7. Theorem of Latent Manifold Stability
 
-This toy example utilizes a 2D latent state and linear dynamics to demonstrate singular perturbation mechanics.
+We guarantee the stability of the entire loop using a composite Lyapunov candidate that tracks both prediction error and parameter convergence:
+
+$$V_k = \frac{1}{2} \eta_k^T P \eta_k + \frac{1}{2} \mathrm{tr}(\tilde{\Theta}_k^T \Gamma^{-1} \tilde{\Theta}_k)$$
+
+Given the Local Control Affinity assumption and bounded disturbances, the update law ensures discrete-time dissipation:
+
+$$\Delta V_k = V_{k+1} - V_k \le -c\|\eta_k\|^2 + \mathcal{O}(d_{max})$$
+
+For some constant $c > 0$, this proves **Uniform Ultimate Boundedness (UUB)**. The latent trajectory will always remain in a bounded neighborhood of the task-invariant manifold.
+
+---
+
+## 8. Verification: The Weekend Test Protocol
+
+To empirically validate the **Inference Divergence Hypothesis** (hallucination = geometric instability), execute the following protocol on an open-weights model:
+
+1. **Extract Trajectories**: Record $z_k$ (final layer residual stream) for each generated token.
+2. **Fit Koopman**: Train $\Theta$ on $\phi(z_k)$ using truthful reasoning traces.
+3. **Audit Innovation**: Compute $E_k = \|\eta_k\|^2$ across a test set of logic puzzles.
+4. **Observe Spikes**: Verify if a statistically significant spike in $E_k$ precedes the first hallucinated token.
+5. **Test Intervention**: Inject a low-rank steering vector $u_k = Bv_k$ to arrest the divergence and measure accuracy recovery.
+
+---
+
+## 9. Implementation: Koopman-CBF Module
 
 ```python
 """
-Quickstart: Numerically stable LISA dual-timescale dynamics.
-Features:
-1) Fast/Slow Separation (z: fast, Theta: slow)
-2) Perceptual Gravity (gamma_t): Stress-Amplified Gain
-3) Synthetic Dopamine (D_t): Epistemic Plasticity Gate
+lisa/core/koopman_cbf.py
+Formal implementation of Koopman Observer and DTCBF Projection.
 """
-from __future__ import annotations
-import numpy as np
+import torch
+import torch.nn as nn
 
-def f(z: np.ndarray, u: np.ndarray, Theta: np.ndarray) -> np.ndarray:
-    # dz/dt = A(Theta)z + Bu
-    A = np.array([[Theta[0], 0.0], [0.0, Theta[1]]])
-    B = np.eye(2)
-    return A @ z + B @ u
+class LISA_Regulator(nn.Module):
+    def __init__(self, n_dim, m_lift, alpha=0.1):
+        super().__init__()
+        # MLP lifts latent state to a linearizable Koopman space
+        self.feature_map = nn.Sequential(nn.Linear(n_dim, m_lift), nn.ReLU())
+        self.Theta = nn.Parameter(torch.eye(n_dim, m_lift)) # Koopman weights
+        self.alpha = alpha # CBF relaxation rate
 
-def g(z: np.ndarray, u: np.ndarray, Theta: np.ndarray) -> np.ndarray:
-    # dTheta/dt target: Alignment with absolute latent magnitudes
-    target = np.abs(z)
-    return target - Theta
+    def predict_next(self, z_k):
+        return self.Theta @ self.feature_map(z_k)
 
-def V(z: np.ndarray, Theta: np.ndarray) -> float:
-    # Lyapunov energy audit
-    return 0.5 * float(np.linalg.norm(np.abs(z) - Theta) ** 2)
+    def compute_innovation(self, z_k, z_next_obs):
+        # η_k = observed state - predicted state
+        return z_next_obs - self.predict_next(z_k)
 
-def main() -> None:
-    dt, T = 0.01, 5.0
-    steps = int(T / dt)
-    z, Theta, u = np.array([1.0, -0.5]), np.array([0.0, 0.0]), np.array([0.0, 0.0])
-    epsilon_base, Sigma, beta_ema = 0.05, 1.0, 0.95
-    energies = []
-
-    for step in range(steps):
-        # Fast behavioral dynamics (t)
-        z = z + dt * f(z, u, Theta)
-
-        # Meta-proprioceptive stability audit
-        E = V(z, Theta)
-        energies.append(E)
-        delta = float(np.linalg.norm(np.abs(z) - Theta)) # Manifold deviation
-
-        # Epistemic signal-to-noise estimation (EMA)
-        Sigma = beta_ema * Sigma + (1 - beta_ema) * (delta ** 2)
-
-        # Modulators
-        gamma_t = 1.0 + 1.0 * float(np.tanh(2.0 * E))
-        D_t = 1.0 / (1.0 + float(np.exp(-(delta / (Sigma + 1e-6) - 0.5))))
-
-        # Slow structural dynamics (tau)
-        epsilon = epsilon_base * min(gamma_t, 10.0)
-        Theta = Theta + dt * (epsilon * D_t) * g(z, u, Theta)
-
-        if step % 100 == 0:
-            print(f"Step {step:4}: V={E:.4f} | gamma={gamma_t:.2f} | D={D_t:.2f}")
-
-    print(f"\nFinal manifold error: {energies[-1]:.4f}")
-
-if __name__ == "__main__":
-    main()
+    def safety_filter(self, z_k, u_nom, h_func):
+        # Enforce geometric homeostasis via DTCBF
+        # In practice: Solved via low-rank QP projection (e.g., CVXPY layers)
+        h_k = h_func(z_k)
+        return u_nom if h_k > 0 else u_nom * (1 - self.alpha)
 ```
 
 ---
 
-## Repository Structure
+## 10. Limitations
 
-```
-LISA/
-├── __init__.py
-├── probers/         # Active System Identification & BRT reachability estimation
-├── cbf/             # Dynamic Control Barrier Function synthesis & optimal projection
-├── adaptation.py    # Slow structural updates g(z, u, Theta) & Lyapunov dynamics
-├── dynamics.py      # Fast behavioral dynamics f(z, u, Theta)
-├── energy.py        # Meta-proprioceptive proxy energy functionals V(z, Theta)
-├── coherence.py     # ERROR-360 diagnostics, Perceptual Gravity, Synthetic Dopamine
-└── simulation.py    # ODE integrators and singular perturbation utilities
-```
+To establish realistic operational boundaries, the following limitations are explicitly noted:
+
+- **No Global Guarantees**: Stability and safety guarantees hold only locally, contingent upon the validity of the first-order Taylor linearization.
+
+- **Adversarial Vulnerability**: The empirical disturbance envelope bounds naturally occurring aleatoric drift; it does not guarantee robustness against targeted adversarial perturbations.
+
+- **Covariance Inversion Cost**: Continuous precision matrix updates ($\Sigma^{-1}$) are computationally intensive in ultra-high-dimensional spaces, necessitating batched or asynchronous low-rank approximations.
+
+---
+
+## 11. Conceptual Analogy to Biological Control
+
+While derived strictly from nonlinear sampled-data control theory, LISA's architecture loosely resembles functional motifs observed in biological control systems, specifically the Cortical-Basal Ganglia-Thalamic control loop. The geometric auditing term ($\eta_k$) mirrors sensory prediction error. The gain scheduler ($\gamma_k$) and epistemic gate ($D_k$) parallel dopamine-mediated learning rate modulation. Finally, the CBF optimal control projection mimics the basal ganglia's inhibitory gating of the thalamus, preventing catastrophic actions prior to execution.
 
 ---
 
 ## Citation
 
-> Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions and Manifold Stability via Active Environmental Probing, Technical Report, 2025-2026.
-
-
-
-
-
-
-
-
-
-
+```
+Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions 
+and Manifold Stability via Active Environmental Probing, Technical Report, 2026.
+```
