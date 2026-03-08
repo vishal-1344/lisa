@@ -123,7 +123,7 @@ For some constant $c > 0$, this proves **Uniform Ultimate Boundedness (UUB)**. T
 
 ---
 
-## 8. Verification: The Weekend Test Protocol
+## 8. Verification
 
 To empirically validate the **Inference Divergence Hypothesis** (hallucination = geometric instability), execute the following protocol on an open-weights model:
 
@@ -193,4 +193,5 @@ While derived strictly from nonlinear sampled-data control theory, LISA's archit
 Latent Invariant Space Adaptation (LISA): Empirical Synthesis of Velocity-Aware Control Barrier Functions 
 and Manifold Stability via Active Environmental Probing, Technical Report, 2026.
 ```
+
 
