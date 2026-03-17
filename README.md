@@ -1,6 +1,6 @@
-# LISA: Latent Invariant Space Adaptation
+# Latent Invariant Space Adaptation
 
-LISA formalizes neural inference as a governed flow through latent geometry, maintaining manifold stability via dual-timescale adaptive control.
+**LISA* formalizes neural inference as a governed flow through latent geometry, maintaining manifold stability via dual-timescale adaptive control.*
 
 ---
 
