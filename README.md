@@ -4,7 +4,7 @@ LISA formalizes neural inference as a governed flow through latent geometry, mai
 
 ---
 
-## 1. Scientific Contribution: Formal Governance of Latent Flow
+## 1. Formal Governance of Latent Flow
 
 Current research in 2026 prioritized scaling test-time compute and inference-time verifiers. While these methodologies extend search depth, they remain vulnerable to the Verifier Trap. This is a failure mode where extrinsic reward models inadvertently favor plausible but logically divergent reasoning paths.
 
