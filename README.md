@@ -114,7 +114,7 @@ This proves Uniform Ultimate Boundedness, ensuring the latent trajectory remains
 
 ---
 
-## 8. Development Roadmap and Active Research Questions
+## 8. Active Research Questions
 
 The LISA framework is currently undergoing formal certification for safety-critical deployment.
 
