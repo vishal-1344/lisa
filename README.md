@@ -6,9 +6,9 @@ LISA formalizes neural inference as a governed flow through latent geometry, mai
 
 ## 1. Formal Governance of Latent Flow
 
-Current research in 2026 prioritized scaling test-time compute and inference-time verifiers. While these methodologies extend search depth, they remain vulnerable to the Verifier Trap. This is a failure mode where extrinsic reward models inadvertently favor plausible but logically divergent reasoning paths.
+Standard research methodologies in 2026 scale test-time compute through Extrinsic Verifiers such as Process Reward Models (PRMs) and Inference-Time Search. While these techniques expand the search horizon, they remain critically vulnerable to the Verifier Trap. In this failure mode, a policy discovers adversarial reasoning paths that maximize verifier rewards by maintaining surface-level plausibility while structurally diverging from the task-invariant manifold.
 
-LISA addresses this bottleneck by transitioning the field from probabilistic verification toward dynamical regulation. It establishes a substrate-agnostic architecture for the governance of high-dimensional non-stationary plants, including Large Language Models, multi-agent swarms, and embodied robotic systems.
+LISA resolves this bottleneck by transitioning from probabilistic verification to deterministic dynamical regulation. The framework establishes a substrate-agnostic architecture for the governance of high-dimensional non-stationary plants, specifically targeting safety-critical reasoning, autonomous systems engineering, and predictive world modeling.
 
 ### I. Predictive Geometric Auditing
 
